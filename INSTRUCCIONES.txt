@@ -83,3 +83,9 @@ LAS 3 PAGINAS
 3. Playlist y reproductor, con el boton "Volver" arriba.
 El boton "atras" del celular tambien va de una pagina a otra.
 El texto del boton de la pagina 2 se cambia en CONFIG: botonLista.
+
+
+FOTO DE LA PLAYLIST
+===================
+La foto grande de la pagina 3 (mientras no suena nada) se cambia en CONFIG: fotoPlayer.
+Si se corta una parte importante, prueba fotoPlayerPos: "center top" o "center 30%".
