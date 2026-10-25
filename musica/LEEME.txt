@@ -1,3 +1,8 @@
-Pon aqui tus archivos mp3 (cancion1.mp3, cancion2.mp3, ...).
-Los nombres deben coincidir con los de la lista CANCIONES en index.html.
-Puedes borrar este archivo cuando subas tu musica.
+Esta carpeta es para archivos mp3 propios (opcional).
+Si pones un mp3 aqui, por ejemplo musica/cancion1.mp3, se agrega a una lista
+desde la consola del navegador (F12 > Consola) con:
+
+agregarCancionPropia("alexander", {titulo:"Nombre", artista:"Artista", url:"musica/cancion1.mp3"})
+
+Cambia "alexander" por "yaddi" para agregarla a la lista de ella.
+Antes tienes que entrar con la clave en "Editar listas".
