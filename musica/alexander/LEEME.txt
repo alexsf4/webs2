@@ -1,0 +1,4 @@
+Aqui van los mp3 de la playlist de Alexander.
+Nombres: cancion1.mp3, cancion2.mp3, ...
+Deben coincidir con los "archivo" de la playlist "Alexander" en la lista PLAYLISTS de index.html.
+Puedes borrar este archivo cuando subas tu musica.

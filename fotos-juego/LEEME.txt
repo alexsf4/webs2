@@ -1,0 +1,12 @@
+Pon aqui las fotos del juego de memoria.
+
+REGLA: los nombres deben ser foto1.jpg, foto2.jpg, foto3.jpg, foto4.jpg ...
+(tambien sirven .jpeg, .png y .webp, por ejemplo foto7.png)
+
+- El juego detecta solo cuantas fotos hay (hasta 60).
+- En cada partida elige 10 al azar, asi que si pones 25 fotos, cada vez salen distintas.
+- Para agregar mas fotos solo sigue la numeracion: foto11.jpg, foto12.jpg, ...
+- Minimo 2 fotos. Con menos de 10, el juego usa las que haya.
+- Consejo: reduce las fotos a unos 800 px de ancho para que carguen rapido en el celular.
+
+Puedes borrar este archivo cuando subas tus fotos.
