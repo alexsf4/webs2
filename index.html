@@ -83,13 +83,6 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
 }
 @media (max-width:700px){.embed{padding:0 16px}}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
-
-.tabs{display:flex;flex-wrap:wrap;gap:8px;padding:18px 32px 0}
-.tabs[hidden]{display:none}
-.tab{background:#2a2a2a;color:#fff;font-weight:700;font-size:.9rem;padding:9px 20px;border-radius:999px;transition:background .15s}
-.tab:hover{background:#3a3a3a}
-.tab.on{background:var(--green);color:#000}
-@media (max-width:700px){.tabs{padding:16px 20px 0}}
 </style>
 </head>
 <body>
@@ -100,11 +93,9 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
     <small>Playlist</small>
     <h1 id="title"></h1>
     <p id="desc"></p>
-    <a href="juego.html" style="display:inline-block;margin-top:14px;background:#1ed760;color:#000;font-weight:700;padding:10px 22px;border-radius:999px;text-decoration:none">🎮 Jugar</a>
+    <a href="juego.html" style="display:inline-block;margin-top:14px;background:#1ed760;color:#000;font-weight:700;padding:10px 22px;border-radius:999px;text-decoration:none">🎮 Jugar</a> <a href="yaddi.html" style="margin-left:16px;color:#b3b3b3;font-weight:700;text-decoration:none">Playlist de Yaddi →</a>
   </div>
 </header>
-
-<nav class="tabs" id="tabs" aria-label="Playlists"></nav>
 
 <div class="controls">
   <button class="big-play" id="bigPlay" aria-label="Reproducir"><svg viewBox="0 0 24 24"><path id="bigIcon" d="M8 5v14l11-7z"/></svg></button>
@@ -142,126 +133,85 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
 <audio id="audio" preload="metadata"></audio>
 
 <script>
-/* ============ PERSONALIZA AQUÍ ============
-   Cada playlist tiene SU PROPIA CARPETA dentro de "musica".
-   En "archivo" solo escribes el nombre del mp3: la carpeta se agrega sola.
-   Para una playlist nueva: copia un bloque { ... }, cambia "carpeta" y crea esa carpeta.
-   Spotify (opcional): pega un enlace de playlist/álbum/canción; si lo dejas "" se usan los mp3. */
-const PLAYLISTS = [
-  {
-    nombre: "Alexander",
-    carpeta: "musica/alexander/",
-    foto: "https://files.catbox.moe/0qlgsr.jpg",
-    spotify: "",
-    titulo: "Playlist de Alexander",
-    de: "Alexander",
-    para: "Yaddi",
-    descripcion: "Canciones que me recuerdan a ti.",
-    mensajeTitulo: "Para ti",
-    mensaje: "Escribe aquí tu mensaje: por qué hiciste esta playlist, qué significa cada canción, una fecha especial, etc.",
-    canciones: [
-      { titulo: "Nombre de la canción 1", artista: "Artista", archivo: "cancion1.mp3" },
-      { titulo: "Nombre de la canción 2", artista: "Artista", archivo: "cancion2.mp3" },
-      { titulo: "Nombre de la canción 3", artista: "Artista", archivo: "cancion3.mp3" }
-    ]
-  },
-  {
-    nombre: "Yaddi",
-    carpeta: "musica/yaddi/",
-    foto: "https://files.catbox.moe/0qlgsr.jpg",
-    spotify: "",
-    titulo: "Playlist de Yaddi",
-    de: "Yaddi",
-    para: "Alexander",
-    descripcion: "Canciones que me recuerdan a ti.",
-    mensajeTitulo: "Para ti",
-    mensaje: "Escribe aquí tu mensaje: por qué hiciste esta playlist, qué significa cada canción, una fecha especial, etc.",
-    canciones: [
-      { titulo: "Nombre de la canción 1", artista: "Artista", archivo: "cancion1.mp3" },
-      { titulo: "Nombre de la canción 2", artista: "Artista", archivo: "cancion2.mp3" },
-      { titulo: "Nombre de la canción 3", artista: "Artista", archivo: "cancion3.mp3" }
-    ]
-  }
+/* ============ PERSONALIZA AQUÍ ============ */
+const CONFIG = {
+  foto: "https://files.catbox.moe/0qlgsr.jpg",
+  /* SPOTIFY (opcional): pega aquí el enlace de tu playlist, álbum o canción.
+     Ejemplo: "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
+     Si lo dejas vacío "", se usa el reproductor con tus mp3 de la carpeta musica. */
+  spotify: "",
+  titulo: "Nuestra playlist",
+  de: "Tu nombre",
+  para: "Su nombre",
+  descripcion: "Canciones que me recuerdan a ti.",
+  mensajeTitulo: "Para ti",
+  mensaje: "Escribe aquí tu mensaje: por qué hiciste esta playlist, qué significa cada canción, una fecha especial, etc."
+};
+
+/* Pon tus archivos mp3 en la carpeta "musica" junto a este index.html */
+const CANCIONES = [
+  { titulo: "Nombre de la canción 1", artista: "Artista", archivo: "musica/alexander/cancion1.mp3" },
+  { titulo: "Nombre de la canción 2", artista: "Artista", archivo: "musica/alexander/cancion2.mp3" },
+  { titulo: "Nombre de la canción 3", artista: "Artista", archivo: "musica/alexander/cancion3.mp3" }
 ];
 /* ========================================== */
 
 const $ = id => document.getElementById(id);
 const audio = $("audio");
-const rows = $("rows");
-let P = null, idx = -1;
+let idx = -1;
 
-const ruta = c => P.carpeta + c.archivo;
+$("cover").src = $("npImg").src = CONFIG.foto;
+$("title").textContent = CONFIG.titulo;
+$("desc").innerHTML = `Hecha por <b>${CONFIG.de}</b> para <b>${CONFIG.para}</b> · ${CANCIONES.length} canciones<br>${CONFIG.descripcion}`;
+$("msgTitle").textContent = CONFIG.mensajeTitulo;
+$("msgText").textContent = CONFIG.mensaje;
+document.title = CONFIG.titulo;
+
+const MODO_SPOTIFY = !!CONFIG.spotify.trim();
+if (MODO_SPOTIFY) {
+  const m = CONFIG.spotify.match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(playlist|album|track|artist|episode|show)\/([A-Za-z0-9]+)/);
+  if (m) {
+    document.body.classList.add("spotify");
+    const f = document.createElement("iframe");
+    f.src = `https://open.spotify.com/embed/${m[1]}/${m[2]}?theme=0`;
+    f.height = m[1] === "track" || m[1] === "episode" ? 152 : 400;
+    f.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+    f.loading = "lazy";
+    f.title = "Reproductor de Spotify";
+    $("embed").appendChild(f);
+    $("embed").hidden = false;
+    $("desc").innerHTML = `Hecha por <b>${CONFIG.de}</b> para <b>${CONFIG.para}</b><br>${CONFIG.descripcion}`;
+  } else {
+    console.warn("El enlace de Spotify no es válido");
+  }
+}
+
 const fmt = s => isFinite(s) ? Math.floor(s/60) + ":" + String(Math.floor(s%60)).padStart(2,"0") : "0:00";
 const PLAY = "M8 5v14l11-7z", PAUSE = "M6 5h4v14H6zm8 0h4v14h-4z";
 const fill = el => el.style.setProperty("--v", (el.value - el.min) / (el.max - el.min) * 100 + "%");
+
 function toast(t){ const e=$("toast"); e.textContent=t; e.classList.add("show"); clearTimeout(toast.t); toast.t=setTimeout(()=>e.classList.remove("show"),2800); }
 
-function montarTabs(){
-  const nav = $("tabs");
-  if (PLAYLISTS.length < 2){ nav.hidden = true; return; }
-  PLAYLISTS.forEach((p, n) => {
-    const b = document.createElement("button");
-    b.className = "tab"; b.textContent = p.nombre; b.setAttribute("aria-pressed", "false");
-    b.onclick = () => cargar(n);
-    nav.appendChild(b);
-  });
-}
-
-function cargar(n){
-  idx = -1;
-  audio.pause(); audio.removeAttribute("src"); audio.load();
-  P = PLAYLISTS[n];
-  [...$("tabs").children].forEach((b, k) => { b.classList.toggle("on", k === n); b.setAttribute("aria-pressed", String(k === n)); });
-
-  $("cover").src = $("npImg").src = P.foto;
-  $("title").textContent = P.titulo;
-  document.title = P.titulo;
-  $("msgTitle").textContent = P.mensajeTitulo;
-  $("msgText").textContent = P.mensaje;
-  $("npTitle").textContent = "Elige una canción"; $("npArtist").textContent = "";
-  $("seek").value = 0; $("cur").textContent = "0:00"; $("dur").textContent = "0:00"; fill($("seek"));
-
-  document.body.classList.remove("spotify");
-  $("embed").innerHTML = ""; $("embed").hidden = true;
-  let spot = false;
-  if ((P.spotify || "").trim()){
-    const m = P.spotify.match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(playlist|album|track|artist|episode|show)\/([A-Za-z0-9]+)/);
-    if (m){
-      document.body.classList.add("spotify");
-      const f = document.createElement("iframe");
-      f.src = `https://open.spotify.com/embed/${m[1]}/${m[2]}?theme=0`;
-      f.height = m[1] === "track" || m[1] === "episode" ? 152 : 400;
-      f.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
-      f.loading = "lazy"; f.title = "Reproductor de Spotify";
-      $("embed").appendChild(f); $("embed").hidden = false;
-      spot = true;
-    } else console.warn("El enlace de Spotify no es válido");
-  }
-  $("desc").innerHTML = `Hecha por <b>${P.de}</b> para <b>${P.para}</b>` + (spot ? "" : ` · ${P.canciones.length} canciones`) + `<br>${P.descripcion}`;
-
-  rows.innerHTML = "";
-  if (!spot) P.canciones.forEach((c, i) => {
-    const b = document.createElement("button");
-    b.className = "row";
-    b.innerHTML = `<span class="n">${i+1}</span><span><span class="t"></span><span class="a"></span></span><span class="d">–:––</span>`;
-    b.querySelector(".t").textContent = c.titulo;
-    b.querySelector(".a").textContent = c.artista;
-    b.onclick = () => (i === idx ? toggle() : play(i));
-    rows.appendChild(b);
-    const probe = new Audio(); probe.preload = "metadata"; probe.src = ruta(c);
-    probe.onloadedmetadata = () => b.querySelector(".d").textContent = fmt(probe.duration);
-  });
-  try { history.replaceState(null, "", "#" + P.nombre.toLowerCase()); } catch(e){}
-}
+const rows = $("rows");
+(document.body.classList.contains("spotify") ? [] : CANCIONES).forEach((c,i)=>{
+  const b = document.createElement("button");
+  b.className = "row";
+  b.innerHTML = `<span class="n">${i+1}</span><span><span class="t"></span><span class="a"></span></span><span class="d">–:––</span>`;
+  b.querySelector(".t").textContent = c.titulo;
+  b.querySelector(".a").textContent = c.artista;
+  b.onclick = () => (i === idx ? toggle() : play(i));
+  rows.appendChild(b);
+  const probe = new Audio(); probe.preload = "metadata"; probe.src = c.archivo;
+  probe.onloadedmetadata = () => b.querySelector(".d").textContent = fmt(probe.duration);
+});
 
 function play(i){
-  const L = P.canciones; if (!L.length) return;
-  idx = (i + L.length) % L.length;
-  const c = L[idx];
-  audio.src = ruta(c);
+  idx = (i + CANCIONES.length) % CANCIONES.length;
+  const c = CANCIONES[idx];
+  audio.src = c.archivo;
   $("npTitle").textContent = c.titulo;
   $("npArtist").textContent = c.artista;
-  [...rows.children].forEach((r, k) => r.classList.toggle("on", k === idx));
+  [...rows.children].forEach((r,k)=>r.classList.toggle("on",k===idx));
   audio.play().catch(()=>{});
 }
 function toggle(){
@@ -278,7 +228,7 @@ audio.onplay = audio.onpause = () => {
   $("ppIcon").setAttribute("d", d); $("bigIcon").setAttribute("d", d);
 };
 audio.onended = () => play(idx + 1);
-audio.onerror = () => { if (idx >= 0) toast("No se encontró el archivo: " + ruta(P.canciones[idx])); };
+audio.onerror = () => { if (idx >= 0) toast("No se encontró el archivo: " + CANCIONES[idx].archivo); };
 audio.onloadedmetadata = () => $("dur").textContent = fmt(audio.duration);
 audio.ontimeupdate = () => {
   if (!audio.duration) return;
@@ -291,11 +241,6 @@ $("vol").oninput = e => { audio.volume = e.target.value; fill(e.target); };
 audio.volume = 0.8; fill($("vol")); fill($("seek"));
 
 document.addEventListener("keydown", e => { if (e.code === "Space" && e.target === document.body) { e.preventDefault(); toggle(); } });
-
-montarTabs();
-const hash = location.hash.slice(1).toLowerCase();
-const ini = PLAYLISTS.findIndex(p => p.nombre.toLowerCase() === hash);
-cargar(ini < 0 ? 0 : ini);
 </script>
 </body>
 </html>

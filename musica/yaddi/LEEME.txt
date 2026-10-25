@@ -1,4 +1,3 @@
-Aqui van los mp3 de la playlist de Yaddi.
-Nombres: cancion1.mp3, cancion2.mp3, ...
-Deben coincidir con los "archivo" de la playlist "Yaddi" en la lista PLAYLISTS de index.html.
+Pon aqui los mp3 de la playlist de Yaddi (cancion1.mp3, cancion2.mp3, ...).
+Los nombres deben coincidir con la lista CANCIONES de yaddi.html.
 Puedes borrar este archivo cuando subas tu musica.
