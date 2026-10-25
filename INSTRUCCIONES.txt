@@ -58,3 +58,19 @@ SI ALGO FALLA
 - "GitHub respondio 403": al token le falta Contents: Read and write.
 - "GitHub respondio 404": el usuario o el repo de CONFIG estan mal escritos.
 - "el navegador bloqueo la conexion (CORS)": avisame, hay que usar un intermediario.
+
+
+NOVEDADES (version con bienvenida, contador y favoritas)
+========================================================
+- Pantalla de bienvenida: sale al entrar (una vez por visita). Textos en CONFIG:
+  bienvenidaTitulo, bienvenidaTexto, bienvenidaBoton.
+- Llevamos juntos: se calcula solo desde la fecha de CONFIG: juntosDesde: "2022-09-29"
+  (formato año-mes-día). El mensaje de la segunda pagina es CONFIG: mensajeInicio
+  (donde escribas <3 sale un corazon).
+- Favoritas (corazon): cada celular guarda las suyas, no hace falta token.
+- Notas por cancion: entra en "Editar listas" y pulsa el lapiz de la fila. Se guarda
+  en listas.json y tambien se ve en la pantalla de letras.
+- Mezclar, Repetir (lista / una), Solo favoritas, buscador y Dormir (apaga la musica a
+  los 15, 30 o 60 minutos).
+- Para subir: reemplaza index.html (y INSTRUCCIONES.txt) en GitHub. NO hace falta tocar
+  listas.json ni la carpeta musica.
