@@ -326,6 +326,28 @@ body[data-pagina="pupi"]:not(.tiene-cancion){padding-bottom:40px}
 .mh{margin-top:6px;font-weight:800;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
 .mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px}
 @media (max-width:640px){.menu{padding:22px 20px 0}}
+/* ===== Memorama ===== */
+body[data-pagina="memo"] .p-tiempo,body[data-pagina="memo"] .p-lista,body[data-pagina="memo"] .p-juego,body[data-pagina="memo"] .p-puzzle,body[data-pagina="memo"] .p-pupi{display:none!important}
+body:not([data-pagina="memo"]) .p-memo{display:none!important}
+body[data-pagina="memo"]:not(.tiene-cancion) .bar{display:none}
+body[data-pagina="memo"]:not(.tiene-cancion){padding-bottom:40px}
+.mi.g5{background:linear-gradient(135deg,#6be3b0,#1c4f5a)}
+.memo{padding:18px 32px 0;max-width:704px}
+.memo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:440px;margin:0 auto}
+.mc{display:block;perspective:700px;aspect-ratio:1;padding:0;border-radius:12px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.mc-in{display:block;position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .45s ease}
+.mc.v .mc-in,.mc.ok .mc-in{transform:rotateY(180deg)}
+.mc-c{position:absolute;inset:0;border-radius:12px;overflow:hidden;display:grid;place-items:center;backface-visibility:hidden;-webkit-backface-visibility:hidden}
+.mc-dorso{background:linear-gradient(135deg,#d1457a,#5c1f3d);border:1px solid var(--linea)}
+.mc-dorso svg{width:42%;height:42%;fill:rgba(255,214,230,.85)}
+.mc:hover .mc-dorso{filter:brightness(1.12)}
+.mc-frente{transform:rotateY(180deg);background:var(--panel);border:1px solid var(--linea)}
+.mc-frente img{width:100%;height:100%;object-fit:cover;display:block}
+.mc-frente .sim{font-size:clamp(1.6rem,9vw,2.6rem);line-height:1}
+.mc.ok .mc-frente{border-color:var(--rosa);box-shadow:0 0 0 2px var(--rosa) inset,0 0 14px rgba(255,107,157,.45)}
+.mc.ok{cursor:default}
+@media (max-width:640px){.memo{padding:16px 20px 0}}
+@media (prefers-reduced-motion:reduce){.mc-in{transition:none}}
 </style>
 <script>try{if(sessionStorage.getItem("regalo_abierto"))document.documentElement.classList.add("sin-bienvenida")}catch(e){}</script>
 </head>
@@ -373,6 +395,7 @@ body[data-pagina="pupi"]:not(.tiene-cancion){padding-bottom:40px}
   <div class="mg">
     <button class="mt" id="btnJuego"><span class="mi g2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span><b>Dinosaurio</b><small>Salta, mi niña</small></button>
     <button class="mt" id="btnPuzzle"><span class="mi g3"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg></span><b>Rompecabezas</b><small id="mtPuzzle"></small></button>
+    <button class="mt" id="btnMemo"><span class="mi g5"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="3" y="5" width="11" height="14" rx="2"/><rect x="10" y="7" width="11" height="14" rx="2"/></svg></span><b>Memorama</b><small id="mtMemo"></small></button>
     <button class="mt" id="btnPupi"><span class="mi g4"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M4 15h16M10 4v16M15 4v16"/></svg></span><b>Pupiletras</b><small id="mtPupi"></small></button>
   </div>
 </nav>
@@ -466,6 +489,17 @@ body[data-pagina="pupi"]:not(.tiene-cancion){padding-bottom:40px}
   <div class="sp-pal" id="spPal"></div>
   <p class="pz-ayuda">Desliza el dedo sobre las letras, en cualquier dirección, para marcar una palabra.</p>
   <div class="dia" id="spPremio" hidden><small>¡LAS ENCONTRASTE TODAS!</small><span id="spPremioTxt"></span></div>
+</section>
+</div>
+
+<!-- ===== Página 7: memorama ===== -->
+<div class="p-memo pagina">
+<div class="cabeza"><button class="chip" id="btnVolverM" aria-label="Volver a la página anterior">← Volver</button><span class="ct" id="memoTitulo"></span></div>
+<section class="memo">
+  <div class="pz-barra"><button class="chip" id="memoNuevo">Barajar de nuevo</button><span class="pz-info" id="memoInfo"></span></div>
+  <div class="memo-grid" id="memoGrid" role="group" aria-label="Cartas del memorama"></div>
+  <p class="pz-ayuda" id="memoAyuda"></p>
+  <div class="dia" id="memoPremio" hidden><small>¡ENCONTRASTE TODOS LOS PARES!</small><span id="memoPremioTxt"></span><br><button class="chip" id="memoOtra">Jugar otra vez</button></div>
 </section>
 </div>
 
@@ -574,6 +608,14 @@ const CONFIG = {
     { nombre: "Sopa 3", palabras: ["Chiquita", "Mercurio", "Alexander", "Antonio", "Medrano", "Tulipanes", "Girasoles", "Estrella"] }
   ],
   pupiFrase: "Las encontraste todas, mi niña. Cada una es algo de lo que siento por ti <3",
+
+  /* Memorama (página 7): pon tus fotos en la carpeta memoCarpeta (en el repositorio). La web las detecta sola.
+     Si la detección falla, escribe aquí los nombres: memoFotos: ["foto1.jpg","foto2.jpg"]. Sin fotos, usa símbolos. */
+  memoTitulo: "Encuentra los pares",
+  memoCarpeta: "fotos-juego",
+  memoFotos: [],
+  memoPares: 10,
+  memoFrase: "Encontraste todos los pares, mi niña. Tú y yo, siempre hacemos buena pareja <3",
 
   juegoPremioPuntos: 300,
   juegoPremioTexto: "Llegaste a 300 puntos. Tu premio: un abrazo larguísimo la próxima vez que nos veamos <3",
@@ -1015,7 +1057,7 @@ $("vol").oninput = e => {
 audio.volume = 0.8; fill($("vol")); fill($("seek"));
 
 document.addEventListener("keydown", e => {
-  if (e.code === "Space" && e.target === document.body && document.body.dataset.pagina !== "juego" && document.body.dataset.pagina !== "puzzle" && document.body.dataset.pagina !== "pupi") { e.preventDefault(); toggle(); }
+  if (e.code === "Space" && e.target === document.body && document.body.dataset.pagina !== "juego" && document.body.dataset.pagina !== "puzzle" && document.body.dataset.pagina !== "pupi" && document.body.dataset.pagina !== "memo") { e.preventDefault(); toggle(); }
 });
 
 /* ---------- Visor estilo Apple Music con letra (LRCLIB, sin clave) ---------- */
@@ -1601,9 +1643,105 @@ window.Pupi = (function(){
   };
 })();
 
+/* ---------- Memorama ---------- */
+window.Memo = (function(){
+  const grid = $("memoGrid"), PARES = CONFIG.memoPares || 10;
+  const SIM = ["❤️", "⭐", "🌙", "🌸", "🎵", "🦋", "🍓", "☀️", "🐱", "🎁", "🍀", "🌈"];
+  const FONDOS = ["#4a1d2e", "#3a2a4a", "#2a3a4a", "#4a2a2a", "#2a4a3a", "#4a3a1d"];
+  let cartas = [], abiertas = [], bloqueo = false, movs = 0, hallados = 0, t0 = 0, tiempo = 0, timer = 0, activo = false, fin = false, token = 0;
+  const tm = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+  const mezclar = a => { for (let i = a.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [a[i], a[j]] = [a[j], a[i]]; } return a; };
+  const clave = () => "regalo_memo_" + PARES;
+  const esImg = n => /\.(jpe?g|png|webp|gif|avif)$/i.test(n);
+  const ruta = n => CONFIG.memoCarpeta + "/" + encodeURIComponent(n);
+  $("memoTitulo").textContent = CONFIG.memoTitulo;
+  $("memoAyuda").textContent = "Toca dos cartas para destaparlas. Si son iguales se quedan; si no, se vuelven a tapar.";
+  grid.setAttribute("aria-label", "Cartas del memorama");
+
+  /* Lista de fotos: primero lee la carpeta del repositorio (API pública de GitHub); si falla, usa memoFotos */
+  let listaFotos = null;
+  async function leerFotos(){
+    if (listaFotos) return listaFotos;
+    let nombres = [];
+    try { const c = JSON.parse(sessionStorage.getItem("regalo_memo_lista") || "null"); if (Array.isArray(c)) nombres = c; } catch (e) {}
+    if (!nombres.length && G.usuario && G.repo) {
+      try {
+        const r = await fetch("https://api.github.com/repos/" + G.usuario + "/" + G.repo + "/contents/" + encodeURIComponent(CONFIG.memoCarpeta) + "?ref=" + encodeURIComponent(G.rama || "main"), { headers: { Accept: "application/vnd.github+json" } });
+        if (r.ok) { nombres = (await r.json()).filter(x => x.type === "file" && esImg(x.name)).map(x => x.name); try { sessionStorage.setItem("regalo_memo_lista", JSON.stringify(nombres)); } catch (e) {} }
+      } catch (e) {}
+    }
+    if (!nombres.length) nombres = (CONFIG.memoFotos || []).filter(esImg);
+    return listaFotos = nombres.map(ruta);
+  }
+  const cargarImg = u => new Promise(ok => { const im = new Image(); const t = setTimeout(() => ok(null), 8000); im.onload = () => { clearTimeout(t); ok(u); }; im.onerror = () => { clearTimeout(t); ok(null); }; im.src = u; });
+
+  function info(){
+    const mj = +leerLS(clave()) || 0;
+    $("memoInfo").textContent = hallados + " de " + PARES + " pares · " + movs + " mov · " + tm(tiempo) + (mj ? " · mejor " + mj : "");
+  }
+  function pintar(){
+    grid.innerHTML = "";
+    cartas.forEach((c, i) => {
+      const b = document.createElement("button"); b.className = "mc"; b.setAttribute("aria-label", "Carta " + (i + 1));
+      const fr = c.img ? '<img alt="" draggable="false" src="' + c.img + '">' : '<span class="sim" aria-hidden="true">' + c.sim + '</span>';
+      b.innerHTML = '<span class="mc-in"><span class="mc-c mc-dorso">' + HEART_SVG + '</span><span class="mc-c mc-frente"' + (c.img ? "" : ' style="background:' + c.fondo + '"') + '>' + fr + '</span></span>';
+      b.onclick = () => tocar(i, b);
+      c.el = b; grid.appendChild(b);
+    });
+  }
+  async function nuevo(){
+    const mi = ++token;
+    clearInterval(timer); timer = 0;
+    abiertas = []; bloqueo = false; movs = 0; hallados = 0; t0 = 0; tiempo = 0; fin = false;
+    $("memoPremio").hidden = true; info();
+    grid.style.opacity = ".4";
+    /* fotos al azar de la carpeta (las que no carguen se reemplazan por símbolos) */
+    const urls = mezclar((await leerFotos()).slice()).slice(0, PARES);
+    const buenas = (await Promise.all(urls.map(cargarImg))).filter(Boolean);
+    if (mi !== token) return;
+    const simbolos = mezclar(SIM.slice());
+    const base = [];
+    for (let i = 0; i < PARES; i++) base.push(i < buenas.length ? { id: "f" + i, img: buenas[i] } : { id: "s" + i, sim: simbolos[(i - buenas.length) % simbolos.length], fondo: FONDOS[i % FONDOS.length] });
+    cartas = mezclar(base.flatMap(c => [Object.assign({}, c), Object.assign({}, c)]));
+    pintar(); grid.style.opacity = "";
+    timer = setInterval(() => { if (t0 && !fin) { tiempo = Math.round((Date.now() - t0) / 1000); info(); } }, 1000);
+  }
+  function tocar(i, el){
+    if (bloqueo || fin) return;
+    const c = cartas[i];
+    if (c.hecha || abiertas.includes(i)) return;
+    if (!t0) t0 = Date.now();
+    el.classList.add("v"); abiertas.push(i);
+    if (abiertas.length < 2) return;
+    movs++; const [a, b] = abiertas;
+    if (cartas[a].id === cartas[b].id) {
+      cartas[a].hecha = cartas[b].hecha = true;
+      [a, b].forEach(k => { cartas[k].el.classList.remove("v"); cartas[k].el.classList.add("ok"); });
+      abiertas = []; hallados++; info();
+      if (hallados === PARES) ganar();
+    } else {
+      bloqueo = true; info();
+      setTimeout(() => { [a, b].forEach(k => cartas[k].el.classList.remove("v")); abiertas = []; bloqueo = false; }, 850);
+    }
+  }
+  function ganar(){
+    fin = true; tiempo = Math.round((Date.now() - t0) / 1000); clearInterval(timer);
+    const mj = +leerLS(clave()) || 0, rec = !mj || movs < mj;
+    if (rec) escribirLS(clave(), String(movs));
+    info(); $("memoPremio").hidden = false;
+    conCorazones($("memoPremioTxt"), CONFIG.memoFrase + " (" + movs + " movimientos, " + tm(tiempo) + (rec ? ", nuevo récord" : "") + ")");
+    setTimeout(() => $("memoPremio").scrollIntoView({ behavior: "smooth", block: "nearest" }), 500);
+  }
+  $("memoNuevo").onclick = nuevo; $("memoOtra").onclick = nuevo;
+  return {
+    entrar(){ if (activo) return; activo = true; if (!cartas.length) nuevo(); },
+    salir(){ activo = false; }
+  };
+})();
+
 /* ---------- Páginas: 1 bienvenida, 2 tiempo + mensaje, 3 playlist, 4 juego, 5 rompecabezas, 6 pupiletras ---------- */
 function aplicarPagina(){
-  const p = location.hash === "#playlist" ? "playlist" : location.hash === "#juego" ? "juego" : location.hash === "#puzzle" ? "puzzle" : location.hash === "#pupiletras" ? "pupi" : "tiempo";
+  const p = location.hash === "#playlist" ? "playlist" : location.hash === "#juego" ? "juego" : location.hash === "#puzzle" ? "puzzle" : location.hash === "#pupiletras" ? "pupi" : location.hash === "#memorama" ? "memo" : "tiempo";
   document.body.dataset.pagina = p;
   window.scrollTo(0, 0);
   if (p !== "playlist" && visorAbierto) cerrarVisor();
@@ -1611,6 +1749,7 @@ function aplicarPagina(){
   if (window.Juego) p === "juego" ? Juego.entrar() : Juego.salir();
   if (window.Puzzle) p === "puzzle" ? Puzzle.entrar() : Puzzle.salir();
   if (window.Pupi) p === "pupi" ? Pupi.entrar() : Pupi.salir();
+  if (window.Memo) p === "memo" ? Memo.entrar() : Memo.salir();
 }
 $("cabezaTitulo").textContent = CONFIG.titulo;
 $("btnLista").onclick = () => { location.hash = "playlist"; };
@@ -1623,6 +1762,9 @@ $("btnVolverP").onclick = () => { location.hash = "tiempo"; };
 $("mtPupi").textContent = CONFIG.pupiListas.length + (CONFIG.pupiListas.length === 1 ? " sopa" : " sopas");
 $("btnPupi").onclick = () => { location.hash = "pupiletras"; };
 $("btnVolverS").onclick = () => { location.hash = "tiempo"; };
+$("mtMemo").textContent = (CONFIG.memoPares || 10) + " pares";
+$("btnMemo").onclick = () => { location.hash = "memorama"; };
+$("btnVolverM").onclick = () => { location.hash = "tiempo"; };
 window.addEventListener("hashchange", aplicarPagina);
 aplicarPagina();
 
