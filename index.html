@@ -225,9 +225,12 @@ body.sonando .eq i{animation-play-state:running}
   .eq i{animation:none!important;transform:scaleY(.6)}
 }
 /* ===== Páginas ===== */
-body[data-pagina="tiempo"] .p-lista,body[data-pagina="tiempo"] .p-juego{display:none!important}
-body[data-pagina="playlist"] .p-tiempo,body[data-pagina="playlist"] .p-juego{display:none!important}
-body[data-pagina="juego"] .p-tiempo,body[data-pagina="juego"] .p-lista{display:none!important}
+body[data-pagina="tiempo"] .p-lista,body[data-pagina="tiempo"] .p-juego,body[data-pagina="tiempo"] .p-puzzle{display:none!important}
+body[data-pagina="playlist"] .p-tiempo,body[data-pagina="playlist"] .p-juego,body[data-pagina="playlist"] .p-puzzle{display:none!important}
+body[data-pagina="juego"] .p-tiempo,body[data-pagina="juego"] .p-lista,body[data-pagina="juego"] .p-puzzle{display:none!important}
+body[data-pagina="puzzle"] .p-tiempo,body[data-pagina="puzzle"] .p-lista,body[data-pagina="puzzle"] .p-juego{display:none!important}
+body[data-pagina="puzzle"]:not(.tiene-cancion) .bar{display:none}
+body[data-pagina="puzzle"]:not(.tiene-cancion){padding-bottom:40px}
 body[data-pagina="tiempo"] .bar{display:none}
 body[data-pagina="juego"]:not(.tiene-cancion) .bar{display:none}
 body[data-pagina="tiempo"],body[data-pagina="juego"]:not(.tiene-cancion){padding-bottom:40px}
@@ -270,6 +273,25 @@ body[data-pagina="tiempo"],body[data-pagina="juego"]:not(.tiene-cancion){padding
   .cielo{padding:26px 20px 0}
   .juego{padding:16px 20px 0}
 }
+
+/* ===== Rompecabezas ===== */
+.puzzle{padding:18px 32px 0;max-width:704px}
+.pz-fotos{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.pz-fotos button{flex:0 0 auto;width:60px;height:60px;border-radius:10px;border:2px solid var(--linea);background-size:cover;background-position:center;opacity:.65;transition:opacity .15s,border-color .15s}
+.pz-fotos button.on{border-color:var(--rosa);opacity:1}
+.pz-barra{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+.pz-info{margin-left:auto;color:var(--muted);font-size:.85rem}
+.pz-caja{position:relative;width:100%;max-width:440px;margin:0 auto}
+.pz-tablero{display:grid;gap:2px;width:100%;aspect-ratio:1;background:var(--linea);border:2px solid var(--linea);border-radius:12px;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.pz-tablero.listo{gap:0}
+.pz-pieza{padding:0;border:0;background-color:var(--panel);background-repeat:no-repeat;cursor:pointer}
+.pz-pieza.sel{outline:3px solid var(--rosa);outline-offset:-3px;filter:brightness(1.18)}
+.pz-tablero.listo .pz-pieza{cursor:default}
+.pz-prev{position:absolute;inset:0;border-radius:12px;background-size:cover;background-position:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.pz-caja.ver .pz-prev{opacity:1}
+.pz-ayuda{color:var(--muted);font-size:.85rem;text-align:center;margin-top:10px}
+#pzPremio .chip{margin-top:10px}
+@media (max-width:640px){.puzzle{padding:16px 20px 0}.pz-info{margin-left:0;width:100%}}
 </style>
 <script>try{if(sessionStorage.getItem("regalo_abierto"))document.documentElement.classList.add("sin-bienvenida")}catch(e){}</script>
 </head>
@@ -321,6 +343,7 @@ body[data-pagina="tiempo"],body[data-pagina="juego"]:not(.tiene-cancion){padding
 
 <div class="irlista"><button class="btnbv" id="btnLista"></button></div>
 <div class="irlista dos"><button class="btnbv sec" id="btnJuego"></button></div>
+<div class="irlista dos"><button class="btnbv sec" id="btnPuzzle"></button></div>
 </div>
 
 <!-- ===== Página 3: playlist ===== -->
@@ -392,6 +415,23 @@ body[data-pagina="tiempo"],body[data-pagina="juego"]:not(.tiene-cancion){padding
 </section>
 </div>
 
+<!-- ===== Página 5: rompecabezas ===== -->
+<div class="p-puzzle pagina">
+<div class="cabeza"><button class="chip" id="btnVolverP" aria-label="Volver a la página anterior">← Volver</button><span class="ct" id="pzTitulo"></span></div>
+<section class="puzzle">
+  <div class="pz-fotos" id="pzFotos"></div>
+  <div class="pz-barra">
+    <span id="pzNivel"><button class="chip" data-n="3">3 × 3</button> <button class="chip" data-n="4">4 × 4</button></span>
+    <button class="chip" id="pzVer" aria-pressed="false">Ver imagen</button>
+    <button class="chip" id="pzMez">Mezclar</button>
+    <span class="pz-info" id="pzInfo"></span>
+  </div>
+  <div class="pz-caja" id="pzCaja"><div class="pz-tablero" id="pzTablero"></div><div class="pz-prev" id="pzPrev"></div></div>
+  <p class="pz-ayuda">Toca una pieza y luego otra para cambiarlas de lugar.</p>
+  <div class="dia" id="pzPremio" hidden><small>¡LO LOGRASTE!</small><span id="pzPremioTxt"></span><br><button class="chip" id="pzSig">Siguiente foto</button></div>
+</section>
+</div>
+
 <div class="bar">
   <div class="now">
     <img id="npImg" alt="">
@@ -458,6 +498,18 @@ const CONFIG = {
   juegoTitulo: "Salta, mi niña",
   juegoInicio: "Toca para empezar",
   juegoFrases: ["Casi. Otra vez, tú puedes.", "Hasta los dinosaurios tropiezan.", "Un intento más y lo logras <3"],
+  /* Rompecabezas (página 5): puedes poner las fotos que quieras en puzzleFotos */
+  puzzleTitulo: "Armemos nuestros recuerdos",
+  botonPuzzle: "Armar un rompecabezas",
+  puzzleFrase: "Lo armaste, mi niña. Cada pieza en su lugar, como tú en mi vida <3",
+  puzzleFotos: [
+    "https://files.catbox.moe/0qlgsr.jpg",
+    "https://files.catbox.moe/sdggy4.png",
+    "https://i.imgur.com/gXj1QMg.jpeg",
+    "https://i.imgur.com/IZZXHls.jpeg",
+    "https://i.imgur.com/CIRDhkL.jpeg"
+  ],
+
   juegoPremioPuntos: 300,
   juegoPremioTexto: "Llegaste a 300 puntos. Tu premio: un abrazo larguísimo la próxima vez que nos veamos <3",
 
@@ -898,7 +950,7 @@ $("vol").oninput = e => {
 audio.volume = 0.8; fill($("vol")); fill($("seek"));
 
 document.addEventListener("keydown", e => {
-  if (e.code === "Space" && e.target === document.body && document.body.dataset.pagina !== "juego") { e.preventDefault(); toggle(); }
+  if (e.code === "Space" && e.target === document.body && document.body.dataset.pagina !== "juego" && document.body.dataset.pagina !== "puzzle") { e.preventDefault(); toggle(); }
 });
 
 /* ---------- Visor estilo Apple Music con letra (LRCLIB, sin clave) ---------- */
@@ -1295,14 +1347,94 @@ window.Juego = (function(){
   };
 })();
 
-/* ---------- Páginas: 1 bienvenida, 2 tiempo + mensaje, 3 playlist, 4 juego ---------- */
+/* ---------- Rompecabezas ---------- */
+window.Puzzle = (function(){
+  const tab = $("pzTablero"), caja = $("pzCaja"), cont = $("pzFotos"), fotos = CONFIG.puzzleFotos;
+  let n = +leerLS("regalo_pz_n") === 4 ? 4 : 3, f = 0, orden = [], sel = -1, movs = 0, t0 = 0, tiempo = 0, timer = 0, activo = false, listo = false, ratio = 1;
+  const imgs = [];
+  $("pzTitulo").textContent = CONFIG.puzzleTitulo;
+  const tm = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+  const clave = () => "regalo_pz_" + f + "_" + n;
+  function info(){ const r = +leerLS(clave()) || 0; $("pzInfo").textContent = movs + " mov · " + tm(tiempo) + (r ? " · mejor " + r : ""); }
+
+  fotos.forEach((u, i) => {
+    const b = document.createElement("button"); b.style.backgroundImage = 'url("' + u + '")'; b.setAttribute("aria-label", "Foto " + (i + 1));
+    b.onclick = () => { f = i; nuevo(); }; cont.appendChild(b);
+  });
+  function marcar(){
+    [...cont.children].forEach((b, i) => b.classList.toggle("on", i === f));
+    document.querySelectorAll("#pzNivel .chip").forEach(c => c.classList.toggle("on", +c.dataset.n === n));
+    $("pzPrev").style.backgroundImage = 'url("' + fotos[f] + '")';
+  }
+  function pintar(){
+    tab.style.gridTemplateColumns = tab.style.gridTemplateRows = "repeat(" + n + ",1fr)";
+    tab.innerHTML = "";
+    const aw = Math.max(ratio, 1) * n, ah = Math.max(1 / ratio, 1) * n; /* la foto se recorta al centro, como "cover" */
+    orden.forEach((p, i) => {
+      const b = document.createElement("button"), c = p % n, r = Math.floor(p / n);
+      b.className = "pz-pieza" + (i === sel ? " sel" : "");
+      b.style.backgroundImage = 'url("' + fotos[f] + '")';
+      b.style.backgroundSize = aw * 100 + "% " + ah * 100 + "%";
+      b.style.backgroundPosition = (c + (aw - n) / 2) / (aw - 1) * 100 + "% " + (r + (ah - n) / 2) / (ah - 1) * 100 + "%";
+      b.setAttribute("aria-label", "Pieza " + (i + 1) + " de " + n * n);
+      b.onclick = () => tocar(i);
+      tab.appendChild(b);
+    });
+  }
+  function nuevo(){
+    const k = f, im = imgs[k] || (imgs[k] = new Image());
+    function seguir(){
+      if (k !== f) return;
+      ratio = im.naturalWidth / im.naturalHeight || 1;
+      orden = Array.from({ length: n * n }, (_, i) => i);
+      do { for (let i = orden.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [orden[i], orden[j]] = [orden[j], orden[i]]; } }
+      while (orden.every((p, i) => p === i));
+      sel = -1; movs = 0; t0 = 0; tiempo = 0; listo = false;
+      tab.classList.remove("listo"); $("pzPremio").hidden = true;
+      caja.classList.remove("ver"); $("pzVer").classList.remove("on"); $("pzVer").setAttribute("aria-pressed", "false");
+      marcar(); pintar(); info();
+    }
+    if (im.complete && im.naturalWidth) seguir();
+    else { im.onload = seguir; im.onerror = () => toast("No se pudo cargar esa foto"); im.src = fotos[k]; }
+  }
+  function tocar(i){
+    if (listo) return;
+    if (sel < 0) { sel = i; pintar(); return; }
+    if (sel === i) { sel = -1; pintar(); return; }
+    if (!t0) t0 = Date.now();
+    [orden[sel], orden[i]] = [orden[i], orden[sel]]; sel = -1; movs++;
+    pintar(); info();
+    if (orden.every((p, k) => p === k)) ganar();
+  }
+  function ganar(){
+    listo = true; tiempo = Math.round((Date.now() - t0) / 1000);
+    tab.classList.add("listo");
+    const r = +leerLS(clave()) || 0, rec = !r || movs < r;
+    if (rec) escribirLS(clave(), String(movs));
+    info(); $("pzPremio").hidden = false;
+    conCorazones($("pzPremioTxt"), CONFIG.puzzleFrase + " (" + movs + " movimientos, " + tm(tiempo) + (rec ? ", nuevo récord" : "") + ")");
+  }
+
+  document.querySelectorAll("#pzNivel .chip").forEach(c => c.onclick = () => { n = +c.dataset.n; escribirLS("regalo_pz_n", String(n)); nuevo(); });
+  $("pzMez").onclick = nuevo;
+  $("pzSig").onclick = () => { f = (f + 1) % fotos.length; nuevo(); };
+  $("pzVer").onclick = () => { const v = caja.classList.toggle("ver"); $("pzVer").classList.toggle("on", v); $("pzVer").setAttribute("aria-pressed", v); };
+
+  return {
+    entrar(){ if (activo) return; activo = true; if (!orden.length) nuevo(); timer = setInterval(() => { if (t0 && !listo) { tiempo = Math.round((Date.now() - t0) / 1000); info(); } }, 1000); },
+    salir(){ activo = false; clearInterval(timer); }
+  };
+})();
+
+/* ---------- Páginas: 1 bienvenida, 2 tiempo + mensaje, 3 playlist, 4 juego, 5 rompecabezas ---------- */
 function aplicarPagina(){
-  const p = location.hash === "#playlist" ? "playlist" : location.hash === "#juego" ? "juego" : "tiempo";
+  const p = location.hash === "#playlist" ? "playlist" : location.hash === "#juego" ? "juego" : location.hash === "#puzzle" ? "puzzle" : "tiempo";
   document.body.dataset.pagina = p;
   window.scrollTo(0, 0);
   if (p !== "playlist" && visorAbierto) cerrarVisor();
   if (window.Cielo) p === "tiempo" ? Cielo.entrar() : Cielo.salir();
   if (window.Juego) p === "juego" ? Juego.entrar() : Juego.salir();
+  if (window.Puzzle) p === "puzzle" ? Puzzle.entrar() : Puzzle.salir();
 }
 $("btnLista").textContent = CONFIG.botonLista;
 $("cabezaTitulo").textContent = CONFIG.titulo;
@@ -1311,6 +1443,9 @@ $("btnVolver").onclick = () => { location.hash = "tiempo"; };
 $("btnJuego").textContent = CONFIG.botonJuego;
 $("btnJuego").onclick = () => { location.hash = "juego"; };
 $("btnVolverJ").onclick = () => { location.hash = "tiempo"; };
+$("btnPuzzle").textContent = CONFIG.botonPuzzle;
+$("btnPuzzle").onclick = () => { location.hash = "puzzle"; };
+$("btnVolverP").onclick = () => { location.hash = "tiempo"; };
 window.addEventListener("hashchange", aplicarPagina);
 aplicarPagina();
 
