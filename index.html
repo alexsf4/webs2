@@ -292,6 +292,23 @@ body[data-pagina="tiempo"],body[data-pagina="juego"]:not(.tiene-cancion){padding
 .pz-ayuda{color:var(--muted);font-size:.85rem;text-align:center;margin-top:10px}
 #pzPremio .chip{margin-top:10px}
 @media (max-width:640px){.puzzle{padding:16px 20px 0}.pz-info{margin-left:0;width:100%}}
+
+/* ===== Pupiletras ===== */
+body[data-pagina="pupi"] .p-tiempo,body[data-pagina="pupi"] .p-lista,body[data-pagina="pupi"] .p-juego,body[data-pagina="pupi"] .p-puzzle{display:none!important}
+body:not([data-pagina="pupi"]) .p-pupi{display:none!important}
+body[data-pagina="pupi"]:not(.tiene-cancion) .bar{display:none}
+body[data-pagina="pupi"]:not(.tiene-cancion){padding-bottom:40px}
+.pupi{padding:18px 32px 0;max-width:704px}
+.sp-barra{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+.sp-grid{display:grid;width:100%;max-width:440px;margin:0 auto;aspect-ratio:1;gap:2px;background:var(--linea);border:2px solid var(--linea);border-radius:12px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+.sp-c{display:flex;align-items:center;justify-content:center;background:var(--panel);font-weight:800;font-size:clamp(13px,4.2vw,20px);color:var(--text)}
+.sp-c.sel{background:var(--rosa)!important;color:#2b0f1a!important}
+.sp-c.pista{outline:3px solid var(--rosa);outline-offset:-3px}
+.sp-pal{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.sp-pal span{padding:6px 12px;border-radius:16px;border:1px solid var(--linea);background:var(--panel);font-size:.85rem;font-weight:700;color:var(--muted)}
+.sp-pal span.ok{text-decoration:line-through;opacity:.6;border-color:var(--rosa)}
+.sp-tabs{display:flex;flex-wrap:wrap;gap:8px}
+@media (max-width:640px){.pupi{padding:16px 20px 0}}
 </style>
 <script>try{if(sessionStorage.getItem("regalo_abierto"))document.documentElement.classList.add("sin-bienvenida")}catch(e){}</script>
 </head>
@@ -344,6 +361,7 @@ body[data-pagina="tiempo"],body[data-pagina="juego"]:not(.tiene-cancion){padding
 <div class="irlista"><button class="btnbv" id="btnLista"></button></div>
 <div class="irlista dos"><button class="btnbv sec" id="btnJuego"></button></div>
 <div class="irlista dos"><button class="btnbv sec" id="btnPuzzle"></button></div>
+<div class="irlista dos"><button class="btnbv sec" id="btnPupi"></button></div>
 </div>
 
 <!-- ===== Página 3: playlist ===== -->
@@ -412,6 +430,19 @@ body[data-pagina="tiempo"],body[data-pagina="juego"]:not(.tiene-cancion){padding
   </div>
   <p class="jayuda" id="jAyuda"></p>
   <div class="dia" id="jPremio" hidden><small>PREMIO DESBLOQUEADO</small><span id="jPremioTxt"></span></div>
+</section>
+</div>
+
+<!-- ===== Página 6: pupiletras ===== -->
+<div class="p-pupi pagina">
+<div class="cabeza"><button class="chip" id="btnVolverS" aria-label="Volver a la página anterior">← Volver</button><span class="ct" id="spTitulo"></span></div>
+<section class="pupi">
+  <div class="sp-tabs" id="spTabs"></div>
+  <div class="sp-barra"><button class="chip" id="spNueva">Nueva sopa</button><button class="chip" id="spPista">Pista</button><span class="pz-info" id="spInfo"></span></div>
+  <div class="sp-grid" id="spGrid"></div>
+  <div class="sp-pal" id="spPal"></div>
+  <p class="pz-ayuda">Desliza el dedo sobre las letras, en cualquier dirección, para marcar una palabra.</p>
+  <div class="dia" id="spPremio" hidden><small>¡LAS ENCONTRASTE TODAS!</small><span id="spPremioTxt"></span></div>
 </section>
 </div>
 
@@ -509,6 +540,17 @@ const CONFIG = {
     "https://i.imgur.com/IZZXHls.jpeg",
     "https://i.imgur.com/CIRDhkL.jpeg"
   ],
+
+  /* Pupiletras (página 6): cada sopa es { nombre, palabras }. Agrega o quita sopas como quieras. La cuadrícula crece sola si una palabra es más larga que pupiTam */
+  pupiTitulo: "Pupiletras de nosotros",
+  botonPupi: "Armar un pupiletras",
+  pupiTam: 10,
+  pupiListas: [
+    { nombre: "Sopa 1", palabras: ["Yaddi", "Alexander", "Besos", "Abrazo", "Corazón", "Cielo", "Música", "Siempre"] },
+    { nombre: "Sopa 2", palabras: ["Briana", "Melody", "Que", "Quieres", "Reconchetumare", "Preciosa", "Hermosa", "Berrinchuda"] },
+    { nombre: "Sopa 3", palabras: ["Chiquita", "Mercurio", "Alexander", "Antonio", "Medrano", "Tulipanes", "Girasoles", "Estrella"] }
+  ],
+  pupiFrase: "Las encontraste todas, mi niña. Cada una es algo de lo que siento por ti <3",
 
   juegoPremioPuntos: 300,
   juegoPremioTexto: "Llegaste a 300 puntos. Tu premio: un abrazo larguísimo la próxima vez que nos veamos <3",
@@ -950,7 +992,7 @@ $("vol").oninput = e => {
 audio.volume = 0.8; fill($("vol")); fill($("seek"));
 
 document.addEventListener("keydown", e => {
-  if (e.code === "Space" && e.target === document.body && document.body.dataset.pagina !== "juego" && document.body.dataset.pagina !== "puzzle") { e.preventDefault(); toggle(); }
+  if (e.code === "Space" && e.target === document.body && document.body.dataset.pagina !== "juego" && document.body.dataset.pagina !== "puzzle" && document.body.dataset.pagina !== "pupi") { e.preventDefault(); toggle(); }
 });
 
 /* ---------- Visor estilo Apple Music con letra (LRCLIB, sin clave) ---------- */
@@ -1426,15 +1468,126 @@ window.Puzzle = (function(){
   };
 })();
 
-/* ---------- Páginas: 1 bienvenida, 2 tiempo + mensaje, 3 playlist, 4 juego, 5 rompecabezas ---------- */
+/* ---------- Pupiletras ---------- */
+window.Pupi = (function(){
+  const g = $("spGrid"), listas = CONFIG.pupiListas, tabs = $("spTabs");
+  const COL = ["#ff6b9d", "#ffb36b", "#f3cfdc", "#8ad0ff", "#b99bff", "#9fe3b5", "#ffd36b", "#ff9bb8"];
+  const D = [[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]];
+  let li = 0, N = 10, pal = [], letras = [], ini = -1, sel = [], t0 = 0, tiempo = 0, fin = false, timer = 0, activo = false;
+  const tm = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+  const quitar = t => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z]/g, "");
+  const clave = () => "regalo_pupi_" + li;
+  $("spTitulo").textContent = CONFIG.pupiTitulo;
+  listas.forEach((l, i) => {
+    const b = document.createElement("button"); b.className = "chip"; b.textContent = l.nombre;
+    b.onclick = () => { li = i; cargar(); }; tabs.appendChild(b);
+  });
+  if (listas.length < 2) tabs.hidden = true;
+
+  function generar(){
+    for (let intento = 0; intento < 80; intento++) {
+      const m = Array(N * N).fill("");
+      const ok = [...pal].sort((a, b) => b.n.length - a.n.length).every(w => {
+        const L = w.n.length;
+        for (let k = 0; k < 300; k++) {
+          const d = D[Math.floor(Math.random() * D.length)], r = Math.floor(Math.random() * N), c = Math.floor(Math.random() * N);
+          const r2 = r + d[0] * (L - 1), c2 = c + d[1] * (L - 1);
+          if (r2 < 0 || r2 >= N || c2 < 0 || c2 >= N) continue;
+          let cabe = true;
+          for (let i = 0; i < L && cabe; i++) { const x = m[(r + d[0] * i) * N + c + d[1] * i]; if (x && x !== w.n[i]) cabe = false; }
+          if (!cabe) continue;
+          for (let i = 0; i < L; i++) m[(r + d[0] * i) * N + c + d[1] * i] = w.n[i];
+          w.p = r * N + c; return true;
+        }
+        return false;
+      });
+      if (ok) return m.map(x => x || "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random() * 26)]);
+    }
+    return null;
+  }
+  function info(){
+    const mj = +leerLS(clave()) || 0;
+    $("spInfo").textContent = pal.filter(w => w.f).length + " de " + pal.length + " · " + tm(tiempo) + (mj ? " · mejor " + tm(mj) : "");
+  }
+  function lista(){
+    const c = $("spPal"); c.innerHTML = "";
+    pal.forEach(w => { const e = document.createElement("span"); e.textContent = w.t; if (w.f) e.className = "ok"; c.appendChild(e); });
+  }
+  function cargar(){
+    pal = listas[li].palabras.map(t => ({ t: t.trim().toUpperCase(), n: quitar(t), f: 0, p: 0 })).filter(w => w.n.length >= 2);
+    N = Math.max(CONFIG.pupiTam || 10, ...pal.map(w => w.n.length));
+    [...tabs.children].forEach((b, i) => b.classList.toggle("on", i === li));
+    nuevo();
+  }
+  function nuevo(){
+    pal.forEach(w => w.f = 0);
+    const m = generar();
+    if (!m) { toast("No pude acomodar las palabras de esta sopa"); return; }
+    letras = m; sel = []; ini = -1; t0 = 0; tiempo = 0; fin = false;
+    $("spPremio").hidden = true;
+    g.innerHTML = ""; g.style.gridTemplateColumns = g.style.gridTemplateRows = "repeat(" + N + ",1fr)";
+    g.style.fontSize = "clamp(9px," + 42 / N + "vw," + 200 / N + "px)";
+    letras.forEach(l => { const c = document.createElement("div"); c.className = "sp-c"; c.textContent = l; g.appendChild(c); });
+    lista(); info();
+  }
+  const celda = e => { const el = document.elementFromPoint(e.clientX, e.clientY), c = el && el.closest ? el.closest(".sp-c") : null; return c && g.contains(c) ? [...g.children].indexOf(c) : -1; };
+  function linea(a, b){
+    const r1 = Math.floor(a / N), c1 = a % N, dr = Math.floor(b / N) - r1, dc = b % N - c1;
+    if (dr && dc && Math.abs(dr) !== Math.abs(dc)) return [a];
+    const L = Math.max(Math.abs(dr), Math.abs(dc)), out = [];
+    for (let i = 0; i <= L; i++) out.push((r1 + Math.sign(dr) * i) * N + c1 + Math.sign(dc) * i);
+    return out;
+  }
+  const marcar = () => [...g.children].forEach((c, i) => c.classList.toggle("sel", sel.includes(i)));
+  g.onpointerdown = e => {
+    if (fin) return; e.preventDefault();
+    const i = celda(e); if (i < 0) return;
+    if (!t0) t0 = Date.now();
+    ini = i; sel = [i]; marcar();
+    try { g.setPointerCapture(e.pointerId); } catch (x) {}
+  };
+  g.onpointermove = e => { if (ini < 0) return; const i = celda(e); if (i < 0) return; sel = linea(ini, i); marcar(); };
+  g.onpointerup = g.onpointercancel = () => {
+    if (ini < 0) return; ini = -1;
+    const s = sel.map(i => letras[i]).join(""), r = s.split("").reverse().join("");
+    const w = sel.length > 1 ? pal.find(x => !x.f && (x.n === s || x.n === r)) : null;
+    if (w) {
+      w.f = 1; const col = COL[pal.indexOf(w) % COL.length];
+      sel.forEach(i => { g.children[i].style.background = col; g.children[i].style.color = "#2b0f1a"; });
+      lista(); info();
+      if (pal.every(x => x.f)) ganar(); else toast("¡Encontraste " + w.t + "!");
+    }
+    sel = []; marcar();
+  };
+  function ganar(){
+    fin = true; tiempo = Math.round((Date.now() - t0) / 1000);
+    const mj = +leerLS(clave()) || 0, rec = !mj || tiempo < mj;
+    if (rec) escribirLS(clave(), String(tiempo));
+    info(); $("spPremio").hidden = false;
+    conCorazones($("spPremioTxt"), CONFIG.pupiFrase + " (" + tm(tiempo) + (rec ? ", nuevo récord" : "") + ")");
+  }
+  $("spNueva").onclick = nuevo;
+  $("spPista").onclick = () => {
+    const w = pal.filter(x => !x.f); if (fin || !w.length) return;
+    const c = g.children[w[Math.floor(Math.random() * w.length)].p]; c.classList.add("pista");
+    setTimeout(() => c.classList.remove("pista"), 2000);
+  };
+  return {
+    entrar(){ if (activo) return; activo = true; if (!letras.length) cargar(); timer = setInterval(() => { if (t0 && !fin) { tiempo = Math.round((Date.now() - t0) / 1000); info(); } }, 1000); },
+    salir(){ activo = false; clearInterval(timer); }
+  };
+})();
+
+/* ---------- Páginas: 1 bienvenida, 2 tiempo + mensaje, 3 playlist, 4 juego, 5 rompecabezas, 6 pupiletras ---------- */
 function aplicarPagina(){
-  const p = location.hash === "#playlist" ? "playlist" : location.hash === "#juego" ? "juego" : location.hash === "#puzzle" ? "puzzle" : "tiempo";
+  const p = location.hash === "#playlist" ? "playlist" : location.hash === "#juego" ? "juego" : location.hash === "#puzzle" ? "puzzle" : location.hash === "#pupiletras" ? "pupi" : "tiempo";
   document.body.dataset.pagina = p;
   window.scrollTo(0, 0);
   if (p !== "playlist" && visorAbierto) cerrarVisor();
   if (window.Cielo) p === "tiempo" ? Cielo.entrar() : Cielo.salir();
   if (window.Juego) p === "juego" ? Juego.entrar() : Juego.salir();
   if (window.Puzzle) p === "puzzle" ? Puzzle.entrar() : Puzzle.salir();
+  if (window.Pupi) p === "pupi" ? Pupi.entrar() : Pupi.salir();
 }
 $("btnLista").textContent = CONFIG.botonLista;
 $("cabezaTitulo").textContent = CONFIG.titulo;
@@ -1446,6 +1599,9 @@ $("btnVolverJ").onclick = () => { location.hash = "tiempo"; };
 $("btnPuzzle").textContent = CONFIG.botonPuzzle;
 $("btnPuzzle").onclick = () => { location.hash = "puzzle"; };
 $("btnVolverP").onclick = () => { location.hash = "tiempo"; };
+$("btnPupi").textContent = CONFIG.botonPupi;
+$("btnPupi").onclick = () => { location.hash = "pupiletras"; };
+$("btnVolverS").onclick = () => { location.hash = "tiempo"; };
 window.addEventListener("hashchange", aplicarPagina);
 aplicarPagina();
 
