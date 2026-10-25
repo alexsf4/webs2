@@ -125,6 +125,33 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
   body{padding-bottom:170px}
   .toast{bottom:180px}
 }
+.bar{z-index:6}
+.now{cursor:pointer}
+.visor{position:fixed;inset:0;z-index:5;background:#12080d;overflow:hidden}
+.visor[hidden]{display:none}
+.vfondo{position:absolute;inset:-10%;width:120%;height:120%;object-fit:cover;filter:blur(60px) brightness(.5) saturate(1.5)}
+.vx{position:absolute;top:14px;left:16px;z-index:2;font-size:1.2rem;padding:8px 12px;border-radius:50%;color:#fff;background:rgba(0,0,0,.35)}
+.vcont{position:relative;height:100%;display:grid;grid-template-columns:minmax(240px,400px) 1fr;gap:48px;align-items:center;padding:70px 48px 110px}
+.vizq img{width:100%;aspect-ratio:1;object-fit:cover;border-radius:12px;box-shadow:0 12px 50px rgba(0,0,0,.6);background:#4a2234}
+.vt{font-size:1.2rem;font-weight:700;margin-top:16px}
+.va{color:#f3cfdc;margin-top:4px}
+.vder{height:100%;min-height:0;display:flex;flex-direction:column}
+.vbusca{display:flex;gap:8px;margin-bottom:6px}
+.vbusca input{flex:1}
+.letra{position:relative;flex:1;overflow-y:auto;scrollbar-width:none;padding:25vh 0;-webkit-mask-image:linear-gradient(transparent,#000 14%,#000 86%,transparent);mask-image:linear-gradient(transparent,#000 14%,#000 86%,transparent)}
+.letra::-webkit-scrollbar{display:none}
+.letra p{font-size:clamp(1.3rem,3vw,2.3rem);font-weight:800;line-height:1.25;margin:0 0 20px;color:rgba(255,255,255,.35);cursor:pointer;transition:color .3s,transform .3s;transform-origin:left}
+.letra p:hover{color:rgba(255,255,255,.65)}
+.letra p.on{color:#fff;transform:scale(1.03)}
+.letra.plana p{color:rgba(255,255,255,.85);cursor:default}
+.letra .aviso2{color:#f3cfdc;font-size:1rem;padding:20px 0}
+@media (max-width:700px){
+  .vcont{grid-template-columns:1fr;grid-template-rows:auto 1fr;gap:10px;padding:60px 20px 160px;align-items:start}
+  .vizq{display:flex;gap:12px;align-items:center}
+  .vizq img{width:72px}
+  .vt{margin-top:0;font-size:1rem}
+  .letra{padding:12vh 0}
+}
 @media (prefers-reduced-motion:reduce){*{transition:none!important}}
 </style>
 </head>
@@ -192,6 +219,21 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
     <div class="seek"><span id="cur">0:00</span><input type="range" id="seek" min="0" max="100" value="0" step="0.1" aria-label="Progreso"><span id="dur">0:00</span></div>
   </div>
   <div class="vol"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg><input type="range" id="vol" min="0" max="1" step="0.01" value="0.8" aria-label="Volumen"></div>
+</div>
+
+<div class="visor" id="visor" hidden>
+  <img class="vfondo" id="vFondo" alt="">
+  <button class="vx" id="vCerrar" aria-label="Cerrar">✕</button>
+  <div class="vcont">
+    <div class="vizq">
+      <img id="vImg" alt="">
+      <div><div class="vt" id="vTitulo"></div><div class="va" id="vArtista"></div></div>
+    </div>
+    <div class="vder">
+      <div class="vbusca"><input type="text" id="vQ" placeholder="Corregir búsqueda de la letra" autocomplete="off"><button class="btn" id="vBuscar">Buscar</button></div>
+      <div class="letra" id="letra"></div>
+    </div>
+  </div>
 </div>
 
 <div class="toast" id="toast"></div>
@@ -491,6 +533,7 @@ function setIcono(sonando){
   $("ppIcon").setAttribute("d", sonando ? PAUSE : PLAY);
 }
 function setProgreso(cur, dur){
+  actualizarLetra(cur);
   $("cur").textContent = fmt(cur);
   $("dur").textContent = fmt(dur);
   if (dur > 0) { $("seek").value = cur / dur * 100; fill($("seek")); }
@@ -505,6 +548,7 @@ function play(i){
   $("npArtist").textContent = c.artista || "";
   $("npImg").src = c.thumb || CONFIG.foto;
   setProgreso(0, 0);
+  if (visorAbierto) prepararVisor(c);
   if (c.tipo === "mp3") {
     modo = "mp3";
     if (ytListo) yt.pauseVideo();
@@ -572,6 +616,91 @@ audio.volume = 0.8; fill($("vol")); fill($("seek"));
 document.addEventListener("keydown", e => {
   if (e.code === "Space" && e.target === document.body) { e.preventDefault(); toggle(); }
 });
+
+/* ---------- Visor estilo Apple Music con letra (LRCLIB, sin clave) ---------- */
+let visorAbierto = false, letraLineas = [], letraSincro = false, letraIdx = -1;
+const cacheLetras = {};
+const limpiar = t => (t || "").replace(/\([^)]*\)|\[[^\]]*\]/g, " ").replace(/\b(official|video oficial|music video|lyrics?|letra|audio|hd|4k|mv|vevo|topic)\b/gi, " ").replace(/\s+/g, " ").replace(/^[\s-]+|[\s-]+$/g, "");
+const consulta = c => { const t = limpiar(c.titulo); return t.includes(" - ") ? t : (t + " " + limpiar(c.artista)).trim(); };
+const durActual = () => { const d = modo === "yt" && ytListo ? yt.getDuration() : audio.duration; return isFinite(d) ? d : 0; };
+
+function parseLRC(txt){
+  const out = [];
+  txt.split("\n").forEach(l => {
+    const tiempos = [...l.matchAll(/\[(\d+):(\d+(?:\.\d+)?)\]/g)];
+    const x = l.replace(/\[[^\]]*\]/g, "").trim() || "♪";
+    tiempos.forEach(m => out.push({ t: +m[1] * 60 + +m[2], x: x }));
+  });
+  return out.sort((a, b) => a.t - b.t);
+}
+async function buscarLetra(q, dur){
+  const r = await fetch("https://lrclib.net/api/search?q=" + encodeURIComponent(q));
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  const lista = (await r.json()).filter(x => x.syncedLyrics || x.plainLyrics);
+  if (!lista.length) return null;
+  if (dur > 0) lista.sort((a, b) => Math.abs((a.duration || 0) - dur) - Math.abs((b.duration || 0) - dur));
+  return lista.find(x => x.syncedLyrics && (!dur || Math.abs((x.duration || 0) - dur) <= 10)) || lista[0];
+}
+function pintarLetra(lineas, msg){
+  const cont = $("letra"); cont.innerHTML = ""; cont.scrollTop = 0;
+  cont.classList.toggle("plana", !letraSincro);
+  if (msg) { const d = document.createElement("div"); d.className = "aviso2"; d.textContent = msg; cont.appendChild(d); return; }
+  lineas.forEach((l, i) => {
+    const p = document.createElement("p"); p.textContent = l.x;
+    if (letraSincro) p.onclick = () => irA(l.t);
+    cont.appendChild(p);
+  });
+}
+function irA(t){
+  if (modo === "yt" && ytListo) yt.seekTo(t, true);
+  else if (modo === "mp3") audio.currentTime = t;
+}
+async function cargarLetra(c, q){
+  letraLineas = []; letraIdx = -1; letraSincro = false;
+  pintarLetra([], "Buscando la letra…");
+  if (durActual() === 0) await new Promise(r => setTimeout(r, 1500));
+  if (sonandoDocId !== c.docId) return;
+  try {
+    const dur = durActual(), clave = q + "|" + Math.round(dur / 5);
+    let res = cacheLetras[clave];
+    if (res === undefined) { res = await buscarLetra(q, dur); cacheLetras[clave] = res; }
+    if (sonandoDocId !== c.docId) return;
+    if (!res) { pintarLetra([], "No encontré la letra de esta canción. Prueba corregir la búsqueda arriba (ej: artista y nombre)."); return; }
+    if (res.syncedLyrics) { letraSincro = true; letraLineas = parseLRC(res.syncedLyrics); }
+    else { letraLineas = res.plainLyrics.split("\n").map(x => ({ t: 0, x: x || " " })); }
+    pintarLetra(letraLineas);
+  } catch (e) {
+    console.error(e);
+    pintarLetra([], "No se pudo cargar la letra" + (e.message === "Failed to fetch" ? " (conexión bloqueada)." : "."));
+  }
+}
+function actualizarLetra(cur){
+  if (!visorAbierto || !letraSincro || !letraLineas.length) return;
+  let i = -1;
+  for (let k = 0; k < letraLineas.length; k++) { if (letraLineas[k].t <= cur + 0.3) i = k; else break; }
+  if (i === letraIdx) return;
+  letraIdx = i;
+  const ps = $("letra").children;
+  for (let k = 0; k < ps.length; k++) ps[k].classList.toggle("on", k === i);
+  if (i >= 0 && ps[i]) { const cont = $("letra"); cont.scrollTo({ top: ps[i].offsetTop - cont.clientHeight / 2 + ps[i].clientHeight / 2, behavior: "smooth" }); }
+}
+function prepararVisor(c){
+  const img = c.thumb || CONFIG.foto;
+  $("vImg").src = $("vFondo").src = img;
+  $("vTitulo").textContent = c.titulo; $("vArtista").textContent = c.artista || "";
+  const q = consulta(c); $("vQ").value = q;
+  cargarLetra(c, q);
+}
+function abrirVisor(){
+  if (idx < 0 || !cola[idx]) { toast("Elige una canción primero"); return; }
+  visorAbierto = true; $("visor").hidden = false; prepararVisor(cola[idx]);
+}
+function cerrarVisor(){ visorAbierto = false; $("visor").hidden = true; }
+document.querySelector(".now").onclick = abrirVisor;
+$("vCerrar").onclick = cerrarVisor;
+$("vBuscar").onclick = () => { if (cola[idx]) cargarLetra(cola[idx], $("vQ").value.trim()); };
+$("vQ").onkeydown = e => { if (e.key === "Enter") $("vBuscar").onclick(); };
+document.addEventListener("keydown", e => { if (e.key === "Escape" && visorAbierto) cerrarVisor(); });
 
 pintarTabs();
 cargarLista();
