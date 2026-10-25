@@ -1,301 +1,508 @@
 <!DOCTYPE html>
 <html lang="es">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Spotify - Nuestra Web Musical</title>
-    <style>
-        :root {
-            --spotify-green: #1db954;
-            --spotify-black: #121212;
-            --spotify-dark-gray: #181818;
-            --spotify-light-gray: #282828;
-            --spotify-text: #ffffff;
-            --spotify-subtext: #b3b3b3;
-        }
-        body {
-            font-family: 'Circular', -apple-system, BlinkMacSystemFont, Roboto, Helvetica, Arial, sans-serif;
-            background-color: var(--spotify-black);
-            color: var(--spotify-text);
-            margin: 0;
-            padding: 20px;
-        }
-        .container {
-            max-width: 1000px;
-            margin: 0 auto;
-        }
-        h1 {
-            text-align: center;
-            color: var(--spotify-green);
-            margin-bottom: 25px;
-        }
-        .spotify-card {
-            background-color: var(--spotify-dark-gray);
-            border-radius: 8px;
-            padding: 24px;
-            margin-bottom: 20px;
-            box-shadow: 0 4px 12px rgba(0,0,0,0.5);
-        }
-        .spotify-card h2, .spotify-card h3 {
-            color: var(--spotify-text);
-            margin-top: 0;
-        }
-        input, select {
-            width: calc(100% - 24px);
-            padding: 12px;
-            margin-bottom: 12px;
-            border-radius: 4px;
-            border: 1px solid #333;
-            background: var(--spotify-light-gray);
-            color: white;
-            font-size: 14px;
-        }
-        button {
-            background-color: var(--spotify-green);
-            color: black;
-            border: none;
-            padding: 12px 20px;
-            border-radius: 500px;
-            cursor: pointer;
-            font-size: 14px;
-            font-weight: bold;
-            width: 100%;
-            transition: transform 0.1s, background-color 0.2s;
-        }
-        button:hover {
-            background-color: #1ed760;
-            transform: scale(1.02);
-        }
-        .playlists-grid {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            gap: 20px;
-        }
-        @media (max-width: 768px) {
-            .playlists-grid {
-                grid-template-columns: 1fr;
-            }
-        }
-        .song-list {
-            list-style: none;
-            padding: 0;
-            max-height: 350px;
-            overflow-y: auto;
-        }
-        .song-item {
-            display: flex;
-            align-items: center;
-            justify-content: space-between;
-            background: var(--spotify-light-gray);
-            padding: 10px 14px;
-            margin-bottom: 8px;
-            border-radius: 4px;
-            transition: background 0.2s;
-        }
-        .song-item:hover {
-            background: #383838;
-        }
-        .song-info {
-            display: flex;
-            align-items: center;
-            gap: 12px;
-            overflow: hidden;
-        }
-        .song-info img {
-            width: 48px;
-            height: 48px;
-            object-fit: cover;
-            border-radius: 4px;
-        }
-        .song-title {
-            font-size: 14px;
-            font-weight: 500;
-            white-space: nowrap;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            max-width: 220px;
-        }
-        .song-actions {
-            display: flex;
-            gap: 8px;
-        }
-        .btn-play {
-            background: var(--spotify-green);
-            color: black;
-            border: none;
-            width: 32px;
-            height: 32px;
-            border-radius: 50%;
-            display: flex;
-            align-items: center;
-            justify-content: center;
-            cursor: pointer;
-            font-weight: bold;
-        }
-        .btn-delete {
-            background: transparent;
-            color: var(--spotify-subtext);
-            border: none;
-            cursor: pointer;
-            font-size: 16px;
-        }
-        .btn-delete:hover {
-            color: #ff4757;
-        }
-        audio {
-            width: 100%;
-            margin-top: 10px;
-        }
-        .loading {
-            text-align: center;
-            color: var(--spotify-subtext);
-            font-style: italic;
-            display: none;
-            margin-top: 10px;
-        }
-    </style>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="theme-color" content="#1c0f16">
+<title>Para ti</title>
+<style>
+:root{
+  --bg:#1c0f16; --panel:#2b1621; --hover:#3a1e2c; --text:#fff5f8; --muted:#d9b3c3; --rosa:#ff6b9d; --linea:#3d2431; --barra:#12080d; --track:#5c3a4a;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{min-height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Circular","Helvetica Neue",Helvetica,Arial,sans-serif;padding-bottom:130px}
+button{background:none;border:0;color:inherit;cursor:pointer;font:inherit}
+button:focus-visible,input:focus-visible{outline:2px solid var(--rosa);outline-offset:2px}
+input[type=text],input[type=password]{background:var(--panel);border:1px solid var(--linea);color:var(--text);border-radius:8px;padding:10px 12px;font:inherit;min-width:0}
+
+.hero{display:flex;gap:24px;align-items:flex-end;padding:56px 32px 28px;background:linear-gradient(180deg,#d1457a 0%,#7a2a4d 45%,#3a1627 75%,var(--bg) 100%)}
+.cover{width:min(232px,38vw);aspect-ratio:1;object-fit:cover;border-radius:10px;box-shadow:0 8px 40px rgba(0,0,0,.55);background:#4a2234;flex:none}
+.hero small{font-size:.8rem;font-weight:700}
+.hero h1{font-size:clamp(2rem,7vw,5rem);line-height:1.02;font-weight:900;letter-spacing:-.03em;margin:8px 0 14px}
+.hero p{color:#f3cfdc;font-size:.9rem;line-height:1.5}
+.hero p b{color:var(--text)}
+
+.top{display:flex;flex-wrap:wrap;align-items:center;gap:12px;padding:18px 32px 6px}
+.tabs{display:flex;gap:8px;flex-wrap:wrap}
+.tab{padding:8px 16px;border-radius:20px;background:var(--panel);border:1px solid var(--linea);font-size:.9rem}
+.tab:hover{background:var(--hover)}
+.tab.on{background:var(--rosa);color:#2b0f1a;border-color:var(--rosa);font-weight:700}
+.btn{padding:8px 16px;border-radius:20px;border:1px solid var(--rosa);color:var(--rosa);font-size:.9rem}
+.btn:hover{background:var(--rosa);color:#2b0f1a}
+.top .btn{margin-left:auto}
+
+.aviso{margin:12px 32px 0;padding:14px 16px;border-radius:10px;background:#4a1d2e;border:1px solid var(--rosa);color:var(--text);font-size:.9rem;line-height:1.5;max-width:640px}
+.panel{margin:12px 32px 0;max-width:640px}
+.fila{display:flex;gap:8px}
+.fila input{flex:1}
+.fila .btn{flex:none}
+
+.res{margin-top:10px;border-radius:10px;background:var(--panel);border:1px solid var(--linea);overflow:hidden}
+.res .it{display:flex;align-items:center;gap:12px;padding:8px 12px;border-bottom:1px solid var(--linea)}
+.res .it:last-child{border-bottom:0}
+.res img{width:64px;height:48px;object-fit:cover;border-radius:4px;background:#4a2234;flex:none}
+.res .tx{flex:1;min-width:0}
+.res .tx .t{font-size:.88rem;line-height:1.3;max-height:2.6em;overflow:hidden}
+.res .tx .a{font-size:.75rem;color:var(--muted);margin-top:2px}
+.res .btn{padding:6px 12px;font-size:.8rem;flex:none}
+.res .btn[disabled]{opacity:.5;cursor:default;background:none;color:var(--rosa)}
+.nota{color:var(--muted);font-size:.85rem;padding:12px}
+
+.edit-only{display:none}
+body.edit .edit-only{display:block}
+
+.player{display:flex;gap:16px;align-items:center;padding:20px 32px 6px}
+#ytwrap,#mp3box{width:100%;max-width:356px;height:200px;border-radius:12px;overflow:hidden;background:#000;flex:none}
+#mp3box{display:none;background:var(--panel);align-items:center;justify-content:center}
+#mp3box img{width:100%;height:100%;object-fit:cover}
+#ytwrap iframe{width:100%;height:100%;display:block}
+
+.list{padding:10px 16px 0}
+.head,.row{display:grid;grid-template-columns:40px 1fr 44px;align-items:center;gap:12px;padding:8px 16px;border-radius:6px}
+.head{color:var(--muted);font-size:.8rem;border-bottom:1px solid var(--linea);border-radius:0;margin-bottom:8px}
+.row{cursor:pointer}
+.row:hover{background:var(--hover)}
+.row .n{color:var(--muted);text-align:center}
+.row .info{display:flex;gap:12px;align-items:center;min-width:0}
+.row .info img{width:44px;height:44px;border-radius:4px;object-fit:cover;background:#4a2234;flex:none}
+.row .t{display:block;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .a{display:block;color:var(--muted);font-size:.85rem;margin-top:2px;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.row .x{visibility:hidden;color:var(--muted);font-size:1.1rem;padding:6px;border-radius:50%}
+body.edit .row .x{visibility:visible}
+.row .x:hover{color:#fff;background:#6a2a42}
+.row.on .t,.row.on .n{color:var(--rosa)}
+.vacio{color:var(--muted);padding:24px 16px;font-size:.9rem}
+
+.msg{margin:40px 32px 0;padding:24px;border-radius:12px;background:var(--panel);border:1px solid var(--linea);max-width:560px;line-height:1.6;color:var(--muted)}
+.msg h2{color:var(--rosa);font-size:1.1rem;margin-bottom:8px}
+
+.bar{position:fixed;left:0;right:0;bottom:0;background:var(--barra);border-top:1px solid var(--linea);padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:1fr 2fr 1fr;gap:16px;align-items:center}
+.now{display:flex;gap:12px;align-items:center;min-width:0}
+.now img{width:56px;height:56px;border-radius:6px;object-fit:cover;background:#4a2234}
+.now .t{font-size:.9rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now .a{font-size:.75rem;color:var(--muted)}
+.mid{display:flex;flex-direction:column;align-items:center;gap:8px}
+.btns{display:flex;align-items:center;gap:20px}
+.btns svg{width:20px;height:20px;fill:var(--muted)}
+.btns button:hover svg{fill:#fff}
+.btns .pp{width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center}
+.btns .pp svg{fill:#2b0f1a;width:16px;height:16px}
+.btns .pp:hover{transform:scale(1.06)}
+.seek{display:flex;align-items:center;gap:8px;width:100%;max-width:560px;font-size:.7rem;color:var(--muted)}
+.seek input{flex:1}
+.vol{display:flex;justify-content:flex-end;align-items:center;gap:8px}
+.vol input{width:100px}
+.vol svg{width:18px;height:18px;fill:var(--muted)}
+
+input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:linear-gradient(to right,#fff var(--v,0%),var(--track) var(--v,0%));cursor:pointer;padding:0;border:0}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#fff;opacity:0}
+input[type=range]:hover{background:linear-gradient(to right,var(--rosa) var(--v,0%),var(--track) var(--v,0%))}
+input[type=range]:hover::-webkit-slider-thumb{opacity:1}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radius:50%;background:#fff}
+
+.toast{position:fixed;left:50%;bottom:130px;transform:translateX(-50%);background:#fff;color:#2b0f1a;padding:10px 18px;border-radius:6px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center;z-index:10}
+.toast.show{opacity:1}
+
+@media (max-width:700px){
+  .hero{flex-direction:column;align-items:flex-start;padding:40px 20px 20px}
+  .top{padding:16px 20px 4px}
+  .aviso,.panel{margin-left:20px;margin-right:20px}
+  .player{padding:16px 20px 4px}
+  .list{padding:10px 4px 0}
+  .msg{margin:32px 20px 0}
+  .bar{grid-template-columns:1fr auto;grid-template-rows:auto auto}
+  .mid{grid-column:1/-1;grid-row:2}
+  .vol{display:none}
+  body{padding-bottom:170px}
+  .toast{bottom:180px}
+}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
 </head>
 <body>
-    <div class="container">
-        <h1>🟢 Spotify - Nuestra Web Musical 💚</h1>
-        
-        <!-- Buscador integrado con API YouTube -->
-        <div class="spotify-card">
-            <h3>Agregar Canción con API YouTube</h3>
-            <input type="text" id="ytUrl" placeholder="Pega el link de YouTube (ej. https://www.youtube.com/watch?v=...)">
-            <select id="targetPlaylist">
-                <option value="mia">Mi Playlist (Mis Canciones)</option>
-                <option value="ella">Playlist de Ella (Sus Canciones)</option>
-            </select>
-            <button onclick="addSongFromYouTube()">Agregar a la Playlist</button>
-            <div id="loadingStatus" class="loading">Consultando API de YouTube y preparando audio...</div>
-        </div>
 
-        <!-- Reproductor Estilo Spotify -->
-        <div class="spotify-card">
-            <h3>Reproductor Spotify</h3>
-            <p id="currentPlayingTitle" style="color: var(--spotify-subtext); font-size: 14px;">Selecciona una canción para reproducir</p>
-            <audio id="audioPlayer" controls></audio>
-        </div>
+<header class="hero">
+  <img class="cover" id="cover" alt="Nuestra foto">
+  <div>
+    <small>Playlist</small>
+    <h1 id="title"></h1>
+    <p id="desc"></p>
+  </div>
+</header>
 
-        <!-- Playlists Separadas (Mía y de Ella) -->
-        <div class="playlists-grid">
-            <div class="spotify-card">
-                <h2>🎵 Mi Playlist</h2>
-                <ul id="listMia" class="song-list"></ul>
-            </div>
-            <div class="spotify-card">
-                <h2>🎶 Playlist de Ella</h2>
-                <ul id="listElla" class="song-list"></ul>
-            </div>
-        </div>
+<div class="top">
+  <div class="tabs" id="tabs"></div>
+  <button class="btn" id="btnEditar">Editar listas</button>
+</div>
+
+<div class="aviso" id="aviso" hidden></div>
+
+<div class="panel" id="loginBox" hidden>
+  <div class="fila">
+    <input type="password" id="clave" placeholder="Escribe la clave" autocomplete="current-password">
+    <button class="btn" id="btnEntrar">Entrar</button>
+  </div>
+</div>
+
+<div class="panel edit-only" id="buscador">
+  <div style="margin-bottom:8px; font-size:0.85rem; color:var(--muted);">Pega el enlace de YouTube (se agregará a la lista actual seleccionada):</div>
+  <div class="fila">
+    <input type="text" id="q" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
+    <button class="btn" id="btnBuscar">Agregar</button>
+  </div>
+  <div class="res" id="resultados" hidden></div>
+</div>
+
+<section class="player">
+  <div id="ytwrap"><div id="ytplayer"></div></div>
+  <div id="mp3box"><img id="mp3img" alt=""></div>
+</section>
+
+<main class="list">
+  <div class="head"><span style="text-align:center">#</span><span>Título</span><span></span></div>
+  <div id="rows"></div>
+</main>
+
+<section class="msg">
+  <h2 id="msgTitle"></h2>
+  <p id="msgText"></p>
+</section>
+
+<div class="bar">
+  <div class="now">
+    <img id="npImg" alt="">
+    <div style="min-width:0"><div class="t" id="npTitle">Elige una canción</div><div class="a" id="npArtist"></div></div>
+  </div>
+  <div class="mid">
+    <div class="btns">
+      <button id="prev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+      <button class="pp" id="pp" aria-label="Reproducir o pausar"><svg viewBox="0 0 24 24"><path id="ppIcon" d="M8 5v14l11-7z"/></svg></button>
+      <button id="next" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg></button>
     </div>
+    <div class="seek"><span id="cur">0:00</span><input type="range" id="seek" min="0" max="100" value="0" step="0.1" aria-label="Progreso"><span id="dur">0:00</span></div>
+  </div>
+  <div class="vol"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg><input type="range" id="vol" min="0" max="1" step="0.01" value="0.8" aria-label="Volumen"></div>
+</div>
 
-    <script>
-        const API_KEY = "evogb-kOXevp1J";
-        let playlists = {
-            mia: JSON.parse(localStorage.getItem('spotify_playlist_mia')) || [],
-            ella: JSON.parse(localStorage.getItem('spotify_playlist_ella')) || []
-        };
+<div class="toast" id="toast"></div>
+<audio id="audio" preload="metadata"></audio>
 
-        function savePlaylists() {
-            localStorage.setItem('spotify_playlist_mia', JSON.stringify(playlists.mia));
-            localStorage.setItem('spotify_playlist_ella', JSON.stringify(playlists.ella));
-            renderPlaylists();
-        }
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
+<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
+<script src="https://www.youtube.com/iframe_api"></script>
 
-        async function addSongFromYouTube() {
-            let inputVal = document.getElementById('ytUrl').value.trim();
-            let target = document.getElementById('targetPlaylist').value;
-            let statusDiv = document.getElementById('loadingStatus');
+<script>
+/* ============ PERSONALIZA AQUÍ ============ */
+const CONFIG = {
+  foto: "https://files.catbox.moe/01jij1.png",
+  titulo: "Para mi niña Yaddi",
+  de: "Alexander",
+  para: "Yaddi",
+  descripcion: "Canciones que me recuerdan a ti.",
+  mensajeTitulo: "Para ti",
+  mensaje: "Estas son canciones que me hacen acordar de ti cada vez que las escucho. Gracias por hacerme sentir amado y enseñarme a amar, porque contigo lo hago siempre.",
 
-            if (!inputVal) {
-                alert("Por favor ingresa un enlace de YouTube.");
-                return;
-            }
+  /* Las dos playlists. El "id" no lo cambies después de usarlo (es el nombre de la carpeta en la base de datos). */
+  listas: [
+    { id: "alexander", nombre: "Playlist de Alexander" },
+    { id: "yaddi",     nombre: "Playlist de Yaddi" }
+  ],
 
-            if (!inputVal.startsWith('http')) {
-                alert("Por favor introduce el enlace completo de YouTube (ej. https://www.youtube.com/watch?v=...)");
-                return;
-            }
+  /* Pega aquí los datos de Firebase (mira LEEME.txt, paso 1) */
+  firebase: {
+    apiKey: "",
+    authDomain: "",
+    projectId: "",
+    appId: ""
+  },
 
-            statusDiv.style.display = 'block';
+  /* El correo que creaste en Firebase > Authentication > Usuarios. La clave es la que escribirán ustedes al pulsar "Editar listas". */
+  usuarioCompartido: "regalo@ejemplo.com",
 
-            try {
-                const response = await fetch(`https://api.evogb.org/dl/ytmp3?key=${API_KEY}&url=${encodeURIComponent(inputVal)}`);
-                const data = await response.json();
+  /* Clave de la API de búsqueda de YouTube (mira LEEME.txt, paso 2) */
+  youtubeKey: ""
+};
+/* ========================================== */
 
-                if (data.status && data.data && data.data.dl) {
-                    const newSong = {
-                        title: data.data.title || "Canción sin título",
-                        thumbnail: data.data.thumbnail || "",
-                        audioUrl: data.data.dl
-                    };
+const $ = id => document.getElementById(id);
+const audio = $("audio");
 
-                    playlists[target].push(newSong);
-                    savePlaylists();
-                    document.getElementById('ytUrl').value = '';
-                    alert("¡Canción agregada con éxito!");
-                } else {
-                    alert("No se pudo obtener el audio con la API.");
-                }
-            } catch (error) {
-                console.error("Error API:", error);
-                alert("Hubo un error al conectar con la API.");
-            } finally {
-                statusDiv.style.display = 'none';
-            }
-        }
+$("cover").src = $("npImg").src = CONFIG.foto;
+$("title").textContent = CONFIG.titulo;
+$("desc").innerHTML = `Hecha por <b>${CONFIG.de}</b> para <b>${CONFIG.para}</b><br>${CONFIG.descripcion}`;
+$("msgTitle").textContent = CONFIG.mensajeTitulo;
+$("msgText").textContent = CONFIG.mensaje;
+document.title = CONFIG.titulo;
 
-        function deleteSong(target, index) {
-            playlists[target].splice(index, 1);
-            savePlaylists();
-        }
+const fmt = s => isFinite(s) && s > 0 ? Math.floor(s/60) + ":" + String(Math.floor(s%60)).padStart(2,"0") : "0:00";
+const PLAY = "M8 5v14l11-7z", PAUSE = "M6 5h4v14H6zm8 0h4v14h-4z";
+const fill = el => el.style.setProperty("--v", (el.value - el.min) / (el.max - el.min) * 100 + "%");
+function toast(t){ const e=$("toast"); e.textContent=t; e.classList.add("show"); clearTimeout(toast.t); toast.t=setTimeout(()=>e.classList.remove("show"),3200); }
+function decodificar(s){ const t=document.createElement("textarea"); t.innerHTML=s; return t.value; }
+function setAviso(txt){ const a=$("aviso"); if(txt){ a.textContent=txt; a.hidden=false; } else { a.hidden=true; } }
 
-        function playSong(title, url) {
-            document.getElementById('currentPlayingTitle').innerText = "Reproduciendo: " + title;
-            let player = document.getElementById('audioPlayer');
-            player.src = url;
-            player.play();
-        }
+/* ---------- Firebase ---------- */
+let db = null, auth = null;
+const FIREBASE_OK = !!(CONFIG.firebase.apiKey && CONFIG.firebase.projectId && typeof firebase !== "undefined");
+if (FIREBASE_OK) {
+  firebase.initializeApp(CONFIG.firebase);
+  db = firebase.firestore();
+  auth = firebase.auth();
+} else {
+  setAviso("Falta conectar la base de datos. Abre LEEME.txt y sigue el paso 1 para pegar los datos de Firebase en index.html.");
+}
+const coleccion = id => db.collection("listas").doc(id).collection("canciones");
 
-        function renderPlaylists() {
-            let listMiaEl = document.getElementById('listMia');
-            listMiaEl.innerHTML = '';
-            playlists.mia.forEach((song, index) => {
-                listMiaEl.innerHTML += `
-                    <li class="song-item">
-                        <div class="song-info">
-                            <img src="${song.thumbnail}" alt="Thumb">
-                            <span class="song-title" title="${song.title}">${song.title}</span>
-                        </div>
-                        <div class="song-actions">
-                            <button class="btn-play" onclick="playSong('${song.title.replace(/'/g, "\'")}', '${song.audioUrl}')">▶</button>
-                            <button class="btn-delete" onclick="deleteSong('mia', ${index})">✕</button>
-                        </div>
-                    </li>
-                `;
-            });
+/* ---------- Estado ---------- */
+let listaActual = CONFIG.listas[0].id;
+let canciones = [];       /* canciones de la pestaña que estás viendo */
+let cola = [];            /* canciones de la lista que está sonando */
+let idx = -1;
+let sonandoDocId = null;
+let modo = null;          /* "yt" o "mp3" */
+let unsub = null;
+let editando = false;
 
-            let listEllaEl = document.getElementById('listElla');
-            listEllaEl.innerHTML = '';
-            playlists.ella.forEach((song, index) => {
-                listEllaEl.innerHTML += `
-                    <li class="song-item">
-                        <div class="song-info">
-                            <img src="${song.thumbnail}" alt="Thumb">
-                            <span class="song-title" title="${song.title}">${song.title}</span>
-                        </div>
-                        <div class="song-actions">
-                            <button class="btn-play" onclick="playSong('${song.title.replace(/'/g, "\'")}', '${song.audioUrl}')">▶</button>
-                            <button class="btn-delete" onclick="deleteSong('ella', ${index})">✕</button>
-                        </div>
-                    </li>
-                `;
-            });
-        }
+/* ---------- Pestañas ---------- */
+function pintarTabs(){
+  const cont = $("tabs"); cont.innerHTML = "";
+  CONFIG.listas.forEach(l => {
+    const b = document.createElement("button");
+    b.className = "tab" + (l.id === listaActual ? " on" : "");
+    b.textContent = l.nombre;
+    b.onclick = () => { listaActual = l.id; pintarTabs(); cargarLista(); };
+    cont.appendChild(b);
+  });
+}
 
-        renderPlaylists();
-    </script>
+function cargarLista(){
+  if (unsub) { unsub(); unsub = null; }
+  canciones = []; pintarFilas();
+  if (!db) return;
+  unsub = coleccion(listaActual).orderBy("creado").onSnapshot(snap => {
+    canciones = snap.docs.map(d => Object.assign({ docId: d.id }, d.data()));
+    pintarFilas();
+  }, err => {
+    console.error(err);
+    setAviso("No se pudo leer la lista. Revisa que las reglas de Firestore estén publicadas (LEEME.txt, paso 1).");
+  });
+}
+
+function pintarFilas(){
+  const rows = $("rows"); rows.innerHTML = "";
+  if (!canciones.length) {
+    const v = document.createElement("div"); v.className = "vacio";
+    v.textContent = editando ? "Aún no hay canciones. Busca una arriba y pulsa Agregar." : "Aún no hay canciones en esta lista.";
+    rows.appendChild(v); return;
+  }
+  canciones.forEach((c, i) => {
+    const r = document.createElement("div");
+    r.className = "row" + (c.docId === sonandoDocId ? " on" : "");
+    const n = document.createElement("span"); n.className = "n"; n.textContent = i + 1;
+    const info = document.createElement("span"); info.className = "info";
+    const img = document.createElement("img"); img.alt = ""; img.src = c.thumb || CONFIG.foto;
+    const tx = document.createElement("span"); tx.style.minWidth = "0";
+    const t = document.createElement("span"); t.className = "t"; t.textContent = c.titulo;
+    const a = document.createElement("span"); a.className = "a"; a.textContent = c.artista || "";
+    tx.appendChild(t); tx.appendChild(a); info.appendChild(img); info.appendChild(tx);
+    const x = document.createElement("button"); x.className = "x"; x.textContent = "✕"; x.title = "Quitar de la lista"; x.setAttribute("aria-label", "Quitar " + c.titulo);
+    x.onclick = ev => { ev.stopPropagation(); quitar(c); };
+    r.appendChild(n); r.appendChild(info); r.appendChild(x);
+    r.onclick = () => { if (c.docId === sonandoDocId && cola.length) toggle(); else { cola = canciones.slice(); play(i); } };
+    rows.appendChild(r);
+  });
+}
+
+/* ---------- Editar: clave, agregar, quitar ---------- */
+$("btnEditar").onclick = () => {
+  if (!auth) { toast("Primero conecta Firebase (LEEME.txt)"); return; }
+  if (editando) { auth.signOut(); return; }
+  const box = $("loginBox"); box.hidden = !box.hidden;
+  if (!box.hidden) $("clave").focus();
+};
+function entrar(){
+  const clave = $("clave").value;
+  if (!clave) { toast("Escribe la clave"); return; }
+  auth.signInWithEmailAndPassword(CONFIG.usuarioCompartido, clave)
+    .then(() => { $("clave").value = ""; $("loginBox").hidden = true; })
+    .catch(() => toast("Clave incorrecta"));
+}
+$("btnEntrar").onclick = entrar;
+$("clave").onkeydown = e => { if (e.key === "Enter") entrar(); };
+
+if (auth) auth.onAuthStateChanged(u => {
+  editando = !!u;
+  document.body.classList.toggle("edit", editando);
+  $("btnEditar").textContent = editando ? "Salir de edición" : "Editar listas";
+  if (!editando) { $("resultados").hidden = true; }
+  pintarFilas();
+});
+
+function agregar(item, listaId){
+  if (!editando) { toast("Primero escribe la clave en Editar listas"); return Promise.reject(); }
+  const lid = listaId || listaActual;
+  return coleccion(lid).add(Object.assign({}, item, { creado: firebase.firestore.FieldValue.serverTimestamp() }));
+}
+function quitar(c){
+  if (!editando) return;
+  if (!confirm("¿Quitar \"" + c.titulo + "\" de la lista?")) return;
+  coleccion(listaActual).doc(c.docId).delete().then(() => toast("Canción quitada")).catch(() => toast("No se pudo quitar"));
+}
+
+/* Para tus propios mp3 (archivos en la carpeta musica): agregarCancionPropia("alexander", {titulo:"...", artista:"...", url:"musica/archivo.mp3"}) */
+window.agregarCancionPropia = (listaId, d) => agregar({ tipo: "mp3", titulo: d.titulo, artista: d.artista || "", url: d.url, thumb: d.thumb || "" }, listaId);
+
+/* ---------- Búsqueda en YouTube ---------- */
+async function buscar(){
+  const ytUrl = $("q").value.trim();
+  if (!ytUrl) { toast("Pega un enlace de YouTube"); return; }
+  const cont = $("resultados"); cont.hidden = false; cont.innerHTML = '<div class="nota">Consultando tu API de YouTube…</div>';
+  try {
+    const apiCallUrl = "https://api.evogb.org/dl/ytmp3?key=evogb-kOXevp1J&url=" + encodeURIComponent(ytUrl);
+    const r = await fetch(apiCallUrl);
+    const j = await r.json();
+    if (!j.status || !j.data || !j.data.dl) throw new Error("No se pudo obtener el audio con la API");
+    
+    const titulo = decodificar(j.data.title || "Canción de YouTube");
+    const thumb = j.data.thumbnail || CONFIG.foto;
+    const audioDlUrl = j.data.dl;
+    
+    cont.innerHTML = "";
+    const fila = document.createElement("div"); fila.className = "it";
+    const im = document.createElement("img"); im.alt = ""; im.src = thumb;
+    const tx = document.createElement("div"); tx.className = "tx";
+    const t = document.createElement("div"); t.className = "t"; t.textContent = titulo;
+    const a = document.createElement("div"); a.className = "a"; a.textContent = "YouTube MP3 (API)";
+    tx.appendChild(t); tx.appendChild(a);
+    const b = document.createElement("button"); b.className = "btn"; b.textContent = "Agregar a la lista";
+    b.onclick = () => {
+      b.disabled = true;
+      agregar({ tipo: "mp3", titulo: titulo, artista: "YouTube", url: audioDlUrl, thumb: thumb })
+        .then(() => { b.textContent = "¡Agregada!"; toast("Canción agregada con éxito"); $("q").value = ""; cont.hidden = true; })
+        .catch(() => { b.disabled = false; toast("No se pudo agregar"); });
+    };
+    fila.appendChild(im); fila.appendChild(tx); fila.appendChild(b);
+    cont.appendChild(fila);
+  } catch (e) {
+    console.error(e);
+    cont.innerHTML = "";
+    const n = document.createElement("div"); n.className = "nota";
+    n.textContent = "Error con la API: " + e.message;
+    cont.appendChild(n);
+  }
+}
+$("btnBuscar").onclick = buscar;
+$("q").onkeydown = e => { if (e.key === "Enter") buscar(); };
+
+/* ---------- Reproductor ---------- */
+let yt = null, ytListo = false;
+window.onYouTubeIframeAPIReady = () => {
+  yt = new YT.Player("ytplayer", {
+    width: "100%", height: "100%",
+    playerVars: { playsinline: 1, rel: 0, modestbranding: 1 },
+    events: {
+      onReady: () => { ytListo = true; yt.setVolume(audio.volume * 100); },
+      onStateChange: e => {
+        if (modo !== "yt") return;
+        if (e.data === YT.PlayerState.ENDED) siguiente();
+        else if (e.data === YT.PlayerState.PLAYING) setIcono(true);
+        else if (e.data === YT.PlayerState.PAUSED) setIcono(false);
+      },
+      onError: () => { toast("Esa canción no se puede reproducir aquí. Paso a la siguiente."); setTimeout(siguiente, 1500); }
+    }
+  });
+};
+
+function setIcono(sonando){
+  $("ppIcon").setAttribute("d", sonando ? PAUSE : PLAY);
+}
+function setProgreso(cur, dur){
+  $("cur").textContent = fmt(cur);
+  $("dur").textContent = fmt(dur);
+  if (dur > 0) { $("seek").value = cur / dur * 100; fill($("seek")); }
+}
+
+function play(i){
+  if (!cola.length) return;
+  idx = (i + cola.length) % cola.length;
+  const c = cola[idx];
+  sonandoDocId = c.docId;
+  $("npTitle").textContent = c.titulo;
+  $("npArtist").textContent = c.artista || "";
+  $("npImg").src = c.thumb || CONFIG.foto;
+  setProgreso(0, 0);
+  if (c.tipo === "mp3") {
+    modo = "mp3";
+    if (ytListo) yt.pauseVideo();
+    $("ytwrap").style.display = "none";
+    $("mp3box").style.display = "flex";
+    $("mp3img").src = c.thumb || CONFIG.foto;
+    audio.src = c.url;
+    audio.play().catch(() => {});
+  } else {
+    if (!ytListo) { toast("El reproductor está cargando, prueba otra vez en un momento"); return; }
+    modo = "yt";
+    audio.pause();
+    $("mp3box").style.display = "none";
+    $("ytwrap").style.display = "block";
+    yt.loadVideoById(c.id);
+    yt.setVolume(audio.volume * 100);
+  }
+  pintarFilas();
+}
+function toggle(){
+  if (idx < 0) { cola = canciones.slice(); return play(0); }
+  if (modo === "yt" && ytListo) {
+    yt.getPlayerState() === YT.PlayerState.PLAYING ? yt.pauseVideo() : yt.playVideo();
+  } else if (modo === "mp3") {
+    audio.paused ? audio.play() : audio.pause();
+  }
+}
+function siguiente(){ if (cola.length) play(idx + 1); }
+function anterior(){
+  if (!cola.length) return;
+  const cur = modo === "yt" && ytListo ? yt.getCurrentTime() : audio.currentTime;
+  cur > 3 ? (modo === "yt" ? yt.seekTo(0, true) : (audio.currentTime = 0)) : play(idx - 1);
+}
+
+$("pp").onclick = toggle;
+$("next").onclick = siguiente;
+$("prev").onclick = anterior;
+
+audio.onplay = () => { if (modo === "mp3") setIcono(true); };
+audio.onpause = () => { if (modo === "mp3") setIcono(false); };
+audio.onended = siguiente;
+audio.onerror = () => { if (modo === "mp3" && idx >= 0) toast("No se encontró el archivo: " + cola[idx].url); };
+audio.ontimeupdate = () => { if (modo === "mp3") setProgreso(audio.currentTime, audio.duration); };
+
+setInterval(() => {
+  if (modo === "yt" && ytListo && yt.getDuration) {
+    const d = yt.getDuration();
+    if (d > 0) setProgreso(yt.getCurrentTime(), d);
+  }
+}, 500);
+
+$("seek").oninput = e => {
+  const p = e.target.value / 100;
+  if (modo === "yt" && ytListo) { const d = yt.getDuration(); if (d > 0) yt.seekTo(p * d, true); }
+  else if (modo === "mp3" && audio.duration) audio.currentTime = p * audio.duration;
+  fill(e.target);
+};
+$("vol").oninput = e => {
+  audio.volume = e.target.value;
+  if (ytListo) yt.setVolume(e.target.value * 100);
+  fill(e.target);
+};
+audio.volume = 0.8; fill($("vol")); fill($("seek"));
+
+document.addEventListener("keydown", e => {
+  if (e.code === "Space" && e.target === document.body) { e.preventDefault(); toggle(); }
+});
+
+pintarTabs();
+cargarLista();
+</script>
 </body>
 </html>
