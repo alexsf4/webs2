@@ -225,10 +225,15 @@ body.sonando .eq i{animation-play-state:running}
   .eq i{animation:none!important;transform:scaleY(.6)}
 }
 /* ===== Páginas ===== */
-body[data-pagina="tiempo"] .p-lista{display:none!important}
-body[data-pagina="playlist"] .p-tiempo{display:none!important}
+body[data-pagina="tiempo"] .p-lista,body[data-pagina="tiempo"] .p-juego,body[data-pagina="tiempo"] .p-puzzle{display:none!important}
+body[data-pagina="playlist"] .p-tiempo,body[data-pagina="playlist"] .p-juego,body[data-pagina="playlist"] .p-puzzle{display:none!important}
+body[data-pagina="juego"] .p-tiempo,body[data-pagina="juego"] .p-lista,body[data-pagina="juego"] .p-puzzle{display:none!important}
+body[data-pagina="puzzle"] .p-tiempo,body[data-pagina="puzzle"] .p-lista,body[data-pagina="puzzle"] .p-juego{display:none!important}
+body[data-pagina="puzzle"]:not(.tiene-cancion) .bar{display:none}
+body[data-pagina="puzzle"]:not(.tiene-cancion){padding-bottom:40px}
 body[data-pagina="tiempo"] .bar{display:none}
-body[data-pagina="tiempo"]{padding-bottom:40px}
+body[data-pagina="juego"]:not(.tiene-cancion) .bar{display:none}
+body[data-pagina="tiempo"],body[data-pagina="juego"]:not(.tiene-cancion){padding-bottom:40px}
 .pagina{animation:entra .5s ease both}
 @keyframes entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
 .irlista{padding:22px 32px 0;max-width:704px}
@@ -240,6 +245,87 @@ body[data-pagina="tiempo"]{padding-bottom:40px}
   .cabeza{padding:18px 20px 0}
 }
 @media (prefers-reduced-motion:reduce){.pagina{animation:none}}
+
+/* ===== Nuestro cielo ===== */
+.cielo{padding:28px 32px 0;max-width:704px}
+.cielo h2{font-size:1.05rem;font-weight:800}
+.cielo .fecha{color:var(--muted);font-size:.85rem;margin-top:3px}
+.cielo-caja{position:relative;margin-top:12px;max-width:420px;aspect-ratio:4/5;border-radius:16px;overflow:hidden;border:1px solid var(--linea);background:#14081f;touch-action:pan-y}
+.cielo-caja canvas{position:absolute;inset:0;width:100%;height:100%;display:block}
+.cielo .texto{margin-top:12px;line-height:1.5;font-size:.95rem}
+.cielo .chip{margin-top:12px}
+.btnbv.sec{background:transparent;border:1px solid var(--rosa);color:var(--rosa)}
+.btnbv.sec:hover{background:var(--rosa);color:#2b0f1a}
+.irlista.dos{padding-top:12px}
+/* ===== Juego ===== */
+.cabeza .ct{font-weight:800;font-size:1.05rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.juego{padding:18px 32px 0;max-width:704px}
+.jinfo{display:flex;justify-content:space-between;align-items:baseline;color:var(--muted);font-size:.85rem;margin-bottom:8px;font-variant-numeric:tabular-nums}
+.jinfo b{color:var(--rosa)}
+#jPuntos{color:var(--text);font-weight:800;font-size:1.15rem}
+.jcaja{position:relative;height:220px;border-radius:14px;overflow:hidden;background:var(--panel);border:1px solid var(--linea);touch-action:none;user-select:none;-webkit-user-select:none;cursor:pointer}
+.jcaja canvas{width:100%;height:100%;display:block}
+.jmsg{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:12px 22px;background:rgba(28,15,22,.55);font-weight:800;line-height:1.35;pointer-events:none}
+.jmsg[hidden]{display:none}
+.jmsg small{display:block;color:var(--muted);font-weight:400;margin-top:6px;font-size:.8rem}
+.jayuda{color:var(--muted);font-size:.8rem;margin-top:10px;line-height:1.45}
+@media (max-width:700px){
+  .cielo{padding:26px 20px 0}
+  .juego{padding:16px 20px 0}
+}
+
+/* ===== Rompecabezas ===== */
+.puzzle{padding:18px 32px 0;max-width:704px}
+.pz-fotos{display:flex;gap:8px;overflow-x:auto;padding-bottom:4px}
+.pz-fotos button{flex:0 0 auto;width:60px;height:60px;border-radius:10px;border:2px solid var(--linea);background-size:cover;background-position:center;opacity:.65;transition:opacity .15s,border-color .15s}
+.pz-fotos button.on{border-color:var(--rosa);opacity:1}
+.pz-barra{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+.pz-info{margin-left:auto;color:var(--muted);font-size:.85rem}
+.pz-caja{position:relative;width:100%;max-width:440px;margin:0 auto}
+.pz-tablero{display:grid;gap:2px;width:100%;aspect-ratio:1;background:var(--linea);border:2px solid var(--linea);border-radius:12px;overflow:hidden;user-select:none;-webkit-user-select:none;touch-action:manipulation}
+.pz-tablero.listo{gap:0}
+.pz-pieza{padding:0;border:0;background-color:var(--panel);background-repeat:no-repeat;cursor:pointer}
+.pz-pieza.sel{outline:3px solid var(--rosa);outline-offset:-3px;filter:brightness(1.18)}
+.pz-tablero.listo .pz-pieza{cursor:default}
+.pz-prev{position:absolute;inset:0;border-radius:12px;background-size:cover;background-position:center;opacity:0;pointer-events:none;transition:opacity .2s}
+.pz-caja.ver .pz-prev{opacity:1}
+.pz-ayuda{color:var(--muted);font-size:.85rem;text-align:center;margin-top:10px}
+#pzPremio .chip{margin-top:10px}
+@media (max-width:640px){.puzzle{padding:16px 20px 0}.pz-info{margin-left:0;width:100%}}
+
+/* ===== Pupiletras ===== */
+body[data-pagina="pupi"] .p-tiempo,body[data-pagina="pupi"] .p-lista,body[data-pagina="pupi"] .p-juego,body[data-pagina="pupi"] .p-puzzle{display:none!important}
+body:not([data-pagina="pupi"]) .p-pupi{display:none!important}
+body[data-pagina="pupi"]:not(.tiene-cancion) .bar{display:none}
+body[data-pagina="pupi"]:not(.tiene-cancion){padding-bottom:40px}
+.pupi{padding:18px 32px 0;max-width:704px}
+.sp-barra{display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin:12px 0}
+.sp-grid{display:grid;width:100%;max-width:440px;margin:0 auto;aspect-ratio:1;gap:2px;background:var(--linea);border:2px solid var(--linea);border-radius:12px;overflow:hidden;touch-action:none;user-select:none;-webkit-user-select:none}
+.sp-c{display:flex;align-items:center;justify-content:center;background:var(--panel);font-weight:800;font-size:clamp(13px,4.2vw,20px);color:var(--text)}
+.sp-c.sel{background:var(--rosa)!important;color:#2b0f1a!important}
+.sp-c.pista{outline:3px solid var(--rosa);outline-offset:-3px}
+.sp-pal{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
+.sp-pal span{padding:6px 12px;border-radius:16px;border:1px solid var(--linea);background:var(--panel);font-size:.85rem;font-weight:700;color:var(--muted)}
+.sp-pal span.ok{text-decoration:line-through;opacity:.6;border-color:var(--rosa)}
+.sp-tabs{display:flex;flex-wrap:wrap;gap:8px}
+@media (max-width:640px){.pupi{padding:16px 20px 0}}
+
+/* ===== Menú de tarjetas (página 2) ===== */
+.menu{padding:22px 32px 0;max-width:704px;display:flex;flex-direction:column;gap:12px}
+.mt{display:flex;flex-direction:column;align-items:flex-start;gap:4px;padding:14px;border-radius:16px;border:1px solid var(--linea);background:var(--panel);color:var(--text);text-align:left;font-family:inherit;cursor:pointer;transition:transform .15s,border-color .15s}
+.mt:hover{border-color:var(--rosa);transform:translateY(-2px)}
+.mt b{font-size:1rem;font-weight:800}
+.mt small{font-size:.78rem;color:var(--muted);line-height:1.35}
+.mi{width:44px;height:44px;border-radius:12px;display:flex;align-items:center;justify-content:center;margin-bottom:6px;background:linear-gradient(135deg,var(--rosa),#7a2a5a)}
+.mi.g2{background:linear-gradient(135deg,#ffb36b,#a8324f)}.mi.g3{background:linear-gradient(135deg,#8a5cff,#341446)}.mi.g4{background:linear-gradient(135deg,#5ccfff,#341446)}
+.mi svg{width:22px;height:22px;fill:none;stroke:#fff;stroke-width:1.8;stroke-linecap:round;stroke-linejoin:round}
+.mt-lista{flex-direction:row;align-items:center;gap:14px;padding:16px}
+.mt-lista .mi{margin:0;flex:none}
+.mt-lista .mx{flex:1;display:flex;flex-direction:column;gap:2px;min-width:0}
+.mt-lista .mf{color:var(--rosa);font-size:1.4rem;font-weight:800}
+.mh{margin-top:6px;font-weight:800;font-size:.78rem;letter-spacing:.08em;text-transform:uppercase;color:var(--muted)}
+.mg{display:grid;grid-template-columns:repeat(auto-fit,minmax(104px,1fr));gap:10px}
+@media (max-width:640px){.menu{padding:22px 20px 0}}
 </style>
 <script>try{if(sessionStorage.getItem("regalo_abierto"))document.documentElement.classList.add("sin-bienvenida")}catch(e){}</script>
 </head>
@@ -281,7 +367,24 @@ body[data-pagina="tiempo"]{padding-bottom:40px}
   <div class="dia"><small id="mensajeEtiq"></small><span id="mensajeInicio"></span></div>
 </section>
 
-<div class="irlista"><button class="btnbv" id="btnLista"></button></div>
+<nav class="menu" aria-label="Menú">
+  <button class="mt mt-lista" id="btnLista"><span class="mi"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M9 18V6l10-2v12"/><circle cx="7" cy="18" r="2.5"/><circle cx="17" cy="16" r="2.5"/></svg></span><span class="mx"><b>Nuestra playlist</b><small>Canciones que me recuerdan a ti</small></span><span class="mf" aria-hidden="true">→</span></button>
+  <div class="mh">Juegos</div>
+  <div class="mg">
+    <button class="mt" id="btnJuego"><span class="mi g2"><svg viewBox="0 0 24 24" aria-hidden="true"><path d="M12 19V5M5 12l7-7 7 7"/></svg></span><b>Dinosaurio</b><small>Salta, mi niña</small></button>
+    <button class="mt" id="btnPuzzle"><span class="mi g3"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="7" height="7" rx="2"/><rect x="13" y="4" width="7" height="7" rx="2"/><rect x="4" y="13" width="7" height="7" rx="2"/><rect x="13" y="13" width="7" height="7" rx="2"/></svg></span><b>Rompecabezas</b><small id="mtPuzzle"></small></button>
+    <button class="mt" id="btnPupi"><span class="mi g4"><svg viewBox="0 0 24 24" aria-hidden="true"><rect x="4" y="4" width="16" height="16" rx="2"/><path d="M4 10h16M4 15h16M10 4v16M15 4v16"/></svg></span><b>Pupiletras</b><small id="mtPupi"></small></button>
+  </div>
+</nav>
+
+<section class="cielo">
+  <h2 id="cieloTitulo"></h2>
+  <div class="fecha" id="cieloFecha"></div>
+  <div class="cielo-caja" id="cieloCaja"><canvas id="cieloCanvas" role="img" aria-label="Cielo estrellado con un corazón dibujado con estrellas"></canvas></div>
+  <p class="texto" id="cieloTexto"></p>
+  <button class="chip" id="btnCielo">Guardar como fondo de pantalla</button>
+</section>
+
 </div>
 
 <!-- ===== Página 3: playlist ===== -->
@@ -337,6 +440,50 @@ body[data-pagina="tiempo"]{padding-bottom:40px}
   <p id="msgText"></p>
 </section>
 
+</div>
+
+<!-- ===== Página 4: juego ===== -->
+<div class="p-juego pagina">
+<div class="cabeza"><button class="chip" id="btnVolverJ" aria-label="Volver a la página anterior">← Volver</button><span class="ct" id="juegoTitulo"></span></div>
+<section class="juego">
+  <div class="jinfo"><span id="jPuntos">00000</span><span>Récord <b id="jRecord">0</b></span></div>
+  <div class="jcaja" id="jCaja">
+    <canvas id="jCanvas" aria-label="Juego del dinosaurio: toca para saltar"></canvas>
+    <div class="jmsg" id="jMsg"><span id="jMsgTxt"></span><small id="jMsgSub"></small></div>
+  </div>
+  <p class="jayuda" id="jAyuda"></p>
+  <div class="dia" id="jPremio" hidden><small>PREMIO DESBLOQUEADO</small><span id="jPremioTxt"></span></div>
+</section>
+</div>
+
+<!-- ===== Página 6: pupiletras ===== -->
+<div class="p-pupi pagina">
+<div class="cabeza"><button class="chip" id="btnVolverS" aria-label="Volver a la página anterior">← Volver</button><span class="ct" id="spTitulo"></span></div>
+<section class="pupi">
+  <div class="sp-tabs" id="spTabs"></div>
+  <div class="sp-barra"><button class="chip" id="spNueva">Nueva sopa</button><button class="chip" id="spPista">Pista</button><span class="pz-info" id="spInfo"></span></div>
+  <div class="sp-grid" id="spGrid"></div>
+  <div class="sp-pal" id="spPal"></div>
+  <p class="pz-ayuda">Desliza el dedo sobre las letras, en cualquier dirección, para marcar una palabra.</p>
+  <div class="dia" id="spPremio" hidden><small>¡LAS ENCONTRASTE TODAS!</small><span id="spPremioTxt"></span></div>
+</section>
+</div>
+
+<!-- ===== Página 5: rompecabezas ===== -->
+<div class="p-puzzle pagina">
+<div class="cabeza"><button class="chip" id="btnVolverP" aria-label="Volver a la página anterior">← Volver</button><span class="ct" id="pzTitulo"></span></div>
+<section class="puzzle">
+  <div class="pz-fotos" id="pzFotos"></div>
+  <div class="pz-barra">
+    <span id="pzNivel"><button class="chip" data-n="3">3 × 3</button> <button class="chip" data-n="4">4 × 4</button></span>
+    <button class="chip" id="pzVer" aria-pressed="false">Ver imagen</button>
+    <button class="chip" id="pzMez">Mezclar</button>
+    <span class="pz-info" id="pzInfo"></span>
+  </div>
+  <div class="pz-caja" id="pzCaja"><div class="pz-tablero" id="pzTablero"></div><div class="pz-prev" id="pzPrev"></div></div>
+  <p class="pz-ayuda">Toca una pieza y luego otra para cambiarlas de lugar.</p>
+  <div class="dia" id="pzPremio" hidden><small>¡LO LOGRASTE!</small><span id="pzPremioTxt"></span><br><button class="chip" id="pzSig">Siguiente foto</button></div>
+</section>
 </div>
 
 <div class="bar">
@@ -395,6 +542,41 @@ const CONFIG = {
 
   /* Botón de la página 2 que lleva a la playlist */
   botonLista: "Ver nuestra playlist  →",
+  botonJuego: "Jugar un ratito",
+
+  /* Nuestro cielo (página 2): usa la misma fecha de juntosDesde */
+  cieloTitulo: "Nuestro cielo",
+  cieloTexto: "Así se veía el cielo el día que empezamos.",
+
+  /* Juego del dinosaurio (página 4). Donde pongas <3 sale un corazón */
+  juegoTitulo: "Salta, mi niña",
+  juegoInicio: "Toca para empezar",
+  juegoFrases: ["Casi. Otra vez, tú puedes.", "Hasta los dinosaurios tropiezan.", "Un intento más y lo logras <3"],
+  /* Rompecabezas (página 5): puedes poner las fotos que quieras en puzzleFotos */
+  puzzleTitulo: "Armemos nuestros recuerdos",
+  botonPuzzle: "Armar un rompecabezas",
+  puzzleFrase: "Lo armaste, mi niña. Cada pieza en su lugar, como tú en mi vida <3",
+  puzzleFotos: [
+    "https://files.catbox.moe/0qlgsr.jpg",
+    "https://files.catbox.moe/sdggy4.png",
+    "https://i.imgur.com/gXj1QMg.jpeg",
+    "https://i.imgur.com/IZZXHls.jpeg",
+    "https://i.imgur.com/CIRDhkL.jpeg"
+  ],
+
+  /* Pupiletras (página 6): cada sopa es { nombre, palabras }. Agrega o quita sopas como quieras. La cuadrícula crece sola si una palabra es más larga que pupiTam */
+  pupiTitulo: "Pupiletras de nosotros",
+  botonPupi: "Armar un pupiletras",
+  pupiTam: 10,
+  pupiListas: [
+    { nombre: "Sopa 1", palabras: ["Yaddi", "Alexander", "Besos", "Abrazo", "Corazón", "Cielo", "Música", "Siempre"] },
+    { nombre: "Sopa 2", palabras: ["Briana", "Melody", "Que", "Quieres", "Reconchetumare", "Preciosa", "Hermosa", "Berrinchuda"] },
+    { nombre: "Sopa 3", palabras: ["Chiquita", "Mercurio", "Alexander", "Antonio", "Medrano", "Tulipanes", "Girasoles", "Estrella"] }
+  ],
+  pupiFrase: "Las encontraste todas, mi niña. Cada una es algo de lo que siento por ti <3",
+
+  juegoPremioPuntos: 300,
+  juegoPremioTexto: "Llegaste a 300 puntos. Tu premio: un abrazo larguísimo la próxima vez que nos veamos <3",
 
   /* Contador "Llevamos juntos": año-mes-día */
   juntosDesde: "2022-09-29",
@@ -747,6 +929,7 @@ function play(i){
   idx = (i + cola.length) % cola.length;
   const c = cola[idx];
   sonandoDocId = c.docId;
+  document.body.classList.add("tiene-cancion");
   $("fotobox").style.display = "none";
   $("npTitle").textContent = c.titulo;
   $("npArtist").textContent = c.artista || "";
@@ -832,7 +1015,7 @@ $("vol").oninput = e => {
 audio.volume = 0.8; fill($("vol")); fill($("seek"));
 
 document.addEventListener("keydown", e => {
-  if (e.code === "Space" && e.target === document.body) { e.preventDefault(); toggle(); }
+  if (e.code === "Space" && e.target === document.body && document.body.dataset.pagina !== "juego" && document.body.dataset.pagina !== "puzzle" && document.body.dataset.pagina !== "pupi") { e.preventDefault(); toggle(); }
 });
 
 /* ---------- Visor estilo Apple Music con letra (LRCLIB, sin clave) ---------- */
@@ -1024,17 +1207,422 @@ setInterval(() => {
   };
 })();
 
-/* ---------- Páginas: 1 bienvenida, 2 tiempo + mensaje, 3 playlist ---------- */
+/* ---------- Corazones en textos (<3) ---------- */
+function conCorazones(el, txt){
+  el.textContent = "";
+  const partes = String(txt).split("<3");
+  partes.forEach((t, i) => {
+    el.appendChild(document.createTextNode(t));
+    if (i < partes.length - 1) { const c = document.createElement("span"); c.className = "corazon"; c.innerHTML = HEART_SVG; el.appendChild(c); }
+  });
+}
+
+/* ---------- Nuestro cielo: estrellas dibujadas con la fecha de juntosDesde ---------- */
+window.Cielo = (function(){
+  const cv = $("cieloCanvas"), cx = cv.getContext("2d"), caja = $("cieloCaja");
+  const reducir = window.matchMedia && matchMedia("(prefers-reduced-motion: reduce)").matches;
+  const [Y, M, D] = CONFIG.juntosDesde.split("-").map(Number);
+  const fecha = new Date(Y, M - 1, D).toLocaleDateString("es", { day: "numeric", month: "long", year: "numeric" });
+  $("cieloTitulo").textContent = CONFIG.cieloTitulo;
+  $("cieloFecha").textContent = fecha;
+  $("cieloTexto").textContent = CONFIG.cieloTexto;
+
+  /* El mismo cielo cada vez: las estrellas salen de la fecha */
+  let semilla = 0; for (const ch of CONFIG.juntosDesde + "cielo") semilla = (semilla * 31 + ch.charCodeAt(0)) >>> 0;
+  const rnd = (a => () => { a |= 0; a = a + 0x6D2B79F5 | 0; let t = Math.imul(a ^ a >>> 15, 1 | a); t = t + Math.imul(t ^ t >>> 7, 61 | t) ^ t; return ((t ^ t >>> 14) >>> 0) / 4294967296; })(semilla);
+  const estrellas = Array.from({ length: 170 }, () => ({ x: rnd(), y: rnd(), r: .3 + rnd() * 1.3, a: .35 + rnd() * .65, f: rnd() * 6.28, v: .6 + rnd() * 1.6, c: Math.floor(rnd() * 3) }));
+  const corazon = [];
+  for (let i = 0; i < 16; i++) { const t = i / 16 * Math.PI * 2; corazon.push({ x: 16 * Math.pow(Math.sin(t), 3), y: 13 * Math.cos(t) - 5 * Math.cos(2 * t) - 2 * Math.cos(3 * t) - Math.cos(4 * t) }); }
+  const FUENTE = "'Noto Sans','Helvetica Neue',Arial,sans-serif";
+
+  function dibujar(c, w, h, t, off, texto){
+    const k = w / 400;
+    const g = c.createLinearGradient(0, 0, 0, h); g.addColorStop(0, "#140a24"); g.addColorStop(.55, "#341446"); g.addColorStop(1, "#5a1d48");
+    c.fillStyle = g; c.fillRect(0, 0, w, h);
+    const capas = [5, 10, 18];
+    c.fillStyle = "#fff";
+    for (const e of estrellas) {
+      c.globalAlpha = e.a * (.7 + .3 * Math.sin(t * e.v + e.f));
+      c.beginPath(); c.arc(e.x * w + off.x * capas[e.c] * k, e.y * h + off.y * capas[e.c] * k, e.r * k * 1.1 + .2, 0, 6.283); c.fill();
+    }
+    c.globalAlpha = 1;
+    const s = w * .0175, mx = w / 2 + off.x * 14 * k, my = h * .42 + off.y * 14 * k;
+    const pts = corazon.map(p => ({ x: mx + p.x * s, y: my - p.y * s }));
+    c.strokeStyle = "rgba(255,107,157,.6)"; c.lineWidth = Math.max(1, k); c.setLineDash([4 * k, 7 * k]);
+    c.beginPath(); pts.forEach((p, i) => i ? c.lineTo(p.x, p.y) : c.moveTo(p.x, p.y)); c.closePath(); c.stroke(); c.setLineDash([]);
+    pts.forEach((p, i) => {
+      const br = .75 + .25 * Math.sin(t * 1.3 + i), gr = c.createRadialGradient(p.x, p.y, 0, p.x, p.y, 12 * k);
+      gr.addColorStop(0, "rgba(255,160,196," + (.55 * br) + ")"); gr.addColorStop(1, "rgba(255,107,157,0)");
+      c.fillStyle = gr; c.beginPath(); c.arc(p.x, p.y, 12 * k, 0, 6.283); c.fill();
+      c.fillStyle = "#ffe3ee"; c.beginPath(); c.arc(p.x, p.y, 2.6 * k, 0, 6.283); c.fill();
+    });
+    if (texto) {
+      c.textAlign = "center"; c.fillStyle = "#fff5f8"; c.font = "700 " + Math.round(w * .05) + "px " + FUENTE; c.fillText(texto[0], w / 2, h * .82);
+      c.fillStyle = "#d9b3c3"; c.font = "400 " + Math.round(w * .034) + "px " + FUENTE; c.fillText(texto[1], w / 2, h * .82 + w * .07);
+    }
+  }
+
+  let raf = 0, activo = false, ultimo = 0, w = 0, h = 0;
+  const objetivo = { x: 0, y: 0 }, off = { x: 0, y: 0 };
+  function medir(){
+    const r = caja.getBoundingClientRect(); if (!r.width || !r.height) return false;
+    const dpr = Math.min(2, window.devicePixelRatio || 1);
+    w = r.width; h = r.height; cv.width = Math.round(w * dpr); cv.height = Math.round(h * dpr); cx.setTransform(dpr, 0, 0, dpr, 0, 0); return true;
+  }
+  function marco(ts){
+    if (!activo) return; raf = requestAnimationFrame(marco);
+    if (ts - ultimo < 33) return; ultimo = ts;
+    off.x += (objetivo.x - off.x) * .08; off.y += (objetivo.y - off.y) * .08;
+    dibujar(cx, w, h, ts / 1000, off);
+  }
+  function quieto(){ if (medir()) dibujar(cx, w, h, 0, { x: 0, y: 0 }); }
+
+  caja.addEventListener("pointermove", e => { const r = caja.getBoundingClientRect(); objetivo.x = ((e.clientX - r.left) / r.width - .5) * 2; objetivo.y = ((e.clientY - r.top) / r.height - .5) * 2; });
+  caja.addEventListener("pointerleave", () => { objetivo.x = 0; objetivo.y = 0; });
+  const inclinar = e => { if (e.gamma == null) return; objetivo.x = Math.max(-1, Math.min(1, e.gamma / 30)); objetivo.y = Math.max(-1, Math.min(1, ((e.beta || 45) - 45) / 30)); };
+  window.addEventListener("deviceorientation", inclinar);
+  let pedido = false;
+  caja.addEventListener("pointerdown", () => {
+    if (pedido) return; pedido = true;
+    if (typeof DeviceOrientationEvent !== "undefined" && typeof DeviceOrientationEvent.requestPermission === "function") DeviceOrientationEvent.requestPermission().catch(() => {});
+  });
+  window.addEventListener("resize", () => { if (activo && reducir) quieto(); else if (activo) medir(); });
+
+  $("btnCielo").onclick = () => {
+    const W = 1080, Hh = 1920, c = document.createElement("canvas"); c.width = W; c.height = Hh;
+    dibujar(c.getContext("2d"), W, Hh, 0, { x: 0, y: 0 }, [fecha, CONFIG.cieloTexto]);
+    c.toBlob(b => {
+      if (!b) { toast("No se pudo guardar la imagen"); return; }
+      const a = document.createElement("a"); a.href = URL.createObjectURL(b); a.download = "nuestro-cielo.png";
+      document.body.appendChild(a); a.click(); a.remove(); setTimeout(() => URL.revokeObjectURL(a.href), 4000);
+      toast("Imagen guardada. Úsala de fondo de pantalla");
+    }, "image/png");
+  };
+
+  return {
+    entrar(){ if (activo) return; activo = true; if (reducir) quieto(); else { medir(); raf = requestAnimationFrame(marco); } },
+    salir(){ activo = false; cancelAnimationFrame(raf); }
+  };
+})();
+
+/* ---------- Juego del dinosaurio ---------- */
+window.Juego = (function(){
+  const cv = $("jCanvas"), cx = cv.getContext("2d"), caja = $("jCaja");
+  const H = 200, SUELO = 168, G = 2300, SALTO = 640;
+  const CORAZON = new Path2D("M12 21s-7.5-4.6-9.6-9.2C.9 8.4 2.7 5 6 5c2 0 3.4 1.1 4.2 2.4h3.6C14.6 6.1 16 5 18 5c3.3 0 5.1 3.4 3.6 6.8C19.5 16.4 12 21 12 21z");
+  let W = 600, raf = 0, ultimo = 0, activo = false, estado = "espera", bloqueo = 0, caer = false, ultimoPuntos = -1;
+  let dino, obs, fondo, vel, puntos, dist, proximo, tPata;
+  let record = +leerLS("regalo_record") || 0, premio = leerLS("regalo_premio") === "1";
+
+  $("juegoTitulo").textContent = CONFIG.juegoTitulo;
+  $("jRecord").textContent = record;
+  $("jAyuda").textContent = "Toca la pantalla, o pulsa espacio o flecha arriba, para saltar. Llega a " + CONFIG.juegoPremioPuntos + " puntos para desbloquear un mensaje.";
+  function mostrarPremio(){ $("jPremio").hidden = false; conCorazones($("jPremioTxt"), CONFIG.juegoPremioTexto); $("jAyuda").hidden = true; }
+  if (premio) mostrarPremio();
+
+  function medir(){
+    const r = caja.getBoundingClientRect(); if (!r.width || !r.height) return;
+    const sc = r.height / H, dpr = Math.min(2, window.devicePixelRatio || 1);
+    W = r.width / sc; cv.width = Math.round(r.width * dpr); cv.height = Math.round(r.height * dpr); cx.setTransform(dpr * sc, 0, 0, dpr * sc, 0, 0);
+  }
+  function reiniciar(){
+    dino = { x: 44, y: SUELO, vy: 0 }; obs = []; vel = 290; puntos = 0; dist = 0; proximo = 260; tPata = 0; caer = false;
+    fondo = Array.from({ length: 6 }, (_, i) => ({ x: i * W / 5 + Math.random() * 60, y: 14 + Math.random() * 70, s: .5 + Math.random() * .5 }));
+  }
+  function mensaje(txt, sub){ const m = $("jMsg"); conCorazones($("jMsgTxt"), txt); $("jMsgSub").textContent = sub || ""; m.hidden = false; }
+  function empezar(){ reiniciar(); estado = "juego"; $("jMsg").hidden = true; }
+  function saltar(){
+    if (estado !== "juego") { if (performance.now() < bloqueo) return; empezar(); dino.vy = -SALTO; return; }
+    if (dino.y >= SUELO - .5) { dino.vy = -SALTO; caer = false; }
+  }
+  function terminar(){
+    estado = "fin"; bloqueo = performance.now() + 450;
+    const p = Math.floor(puntos); let nuevo = false;
+    if (p > record) { record = p; nuevo = true; escribirLS("regalo_record", String(p)); $("jRecord").textContent = p; }
+    const f = CONFIG.juegoFrases; 
+    mensaje(f[Math.floor(Math.random() * f.length)], p + " puntos" + (nuevo ? " · nuevo récord" : "") + ". Toca para intentarlo otra vez");
+  }
+  function crearObstaculo(){
+    const n = 1 + (Math.random() < .35 ? 1 : 0) + (Math.random() < .15 ? 1 : 0);
+    obs.push({ x: W + 20, w: n * 19 + (n - 1) * 2, h: 34 + Math.floor(Math.random() * 20), n });
+  }
+  function actualizar(dt){
+    vel = Math.min(300 + puntos * .5, 720);
+    puntos += vel * dt * .04; dist += vel * dt; tPata += dt;
+    dino.vy += (caer ? G * 2.2 : G) * dt; dino.y += dino.vy * dt;
+    if (dino.y >= SUELO) { dino.y = SUELO; dino.vy = 0; }
+    obs.forEach(o => o.x -= vel * dt); obs = obs.filter(o => o.x + o.w > -10);
+    if (dist >= proximo) { crearObstaculo(); proximo = dist + vel * .6 + 60 + Math.random() * vel * .7; }
+    fondo.forEach(c => { c.x -= vel * dt * .15; if (c.x < -20) { c.x = W + 20; c.y = 14 + Math.random() * 70; } });
+    for (const o of obs) {
+      if (dino.x + 7 < o.x + o.w - 3 && dino.x + 36 > o.x + 3 && dino.y - 4 > SUELO - o.h + 4) { terminar(); return; }
+    }
+    if (!premio && puntos >= CONFIG.juegoPremioPuntos) { premio = true; escribirLS("regalo_premio", "1"); mostrarPremio(); toast("Desbloqueaste un mensaje"); }
+  }
+
+  function dibujarDino(muerto){
+    const u = 3, x = dino.x, y = dino.y - 48, R = (a, b, w, h) => cx.fillRect(x + a * u, y + b * u, w * u, h * u);
+    cx.fillStyle = "#ff6b9d";
+    R(7, 0, 7, 6); R(3, 5, 8, 7); R(0, 7, 3, 3); R(11, 8, 2, 1);
+    const aire = dino.y < SUELO - .5 || estado !== "juego", p = aire ? 2 : Math.floor(tPata / .09) % 2;
+    R(4, 12, 3, p === 0 ? 4 : 2); R(8, 12, 3, p === 1 ? 4 : 2);
+    cx.fillStyle = "#1c0f16";
+    if (muerto) { R(10, 1, 1, 1); R(12, 1, 1, 1); R(11, 2, 1, 1); R(10, 3, 1, 1); R(12, 3, 1, 1); } else R(11, 1, 1, 1);
+    R(11, 4, 3, 1);
+  }
+  function dibujarCactus(o){
+    cx.fillStyle = "#f3cfdc";
+    for (let i = 0; i < o.n; i++) {
+      const x = o.x + i * 21, y = SUELO - o.h, h = o.h;
+      cx.fillRect(x + 5, y, 7, h);
+      cx.fillRect(x, y + h * .45, 5, 4); cx.fillRect(x, y + h * .25, 4, h * .2 + 4);
+      cx.fillRect(x + 12, y + h * .55, 5, 4); cx.fillRect(x + 13, y + h * .35, 4, h * .2 + 4);
+    }
+  }
+  function pintar(){
+    cx.clearRect(0, 0, W, H);
+    cx.fillStyle = "rgba(255,107,157,.14)";
+    fondo.forEach(c => { cx.save(); cx.translate(c.x, c.y); cx.scale(c.s * 1.2, c.s * 1.2); cx.fill(CORAZON); cx.restore(); });
+    cx.fillStyle = "#5c3a4a"; cx.fillRect(0, SUELO + 1, W, 2);
+    const o0 = dist % 46; for (let x = -o0; x < W; x += 46) cx.fillRect(x, SUELO + 9, 14, 2);
+    obs.forEach(dibujarCactus);
+    dibujarDino(estado === "fin");
+    const p = Math.floor(puntos);
+    if (p !== ultimoPuntos) { ultimoPuntos = p; $("jPuntos").textContent = String(p).padStart(5, "0"); }
+  }
+  function bucle(ts){
+    if (!activo) return; raf = requestAnimationFrame(bucle);
+    const dt = Math.min(.033, ultimo ? (ts - ultimo) / 1000 : 0); ultimo = ts;
+    if (estado === "juego") actualizar(dt);
+    pintar();
+  }
+
+  caja.addEventListener("pointerdown", e => { e.preventDefault(); saltar(); });
+  document.addEventListener("keydown", e => {
+    if (!activo) return;
+    if (e.code === "Space" || e.code === "ArrowUp" || e.code === "KeyW") { e.preventDefault(); if (!e.repeat) saltar(); }
+    else if (e.code === "ArrowDown" || e.code === "KeyS") { e.preventDefault(); caer = true; }
+  });
+  document.addEventListener("keyup", e => { if (e.code === "ArrowDown" || e.code === "KeyS") caer = false; });
+  window.addEventListener("resize", () => { if (activo) medir(); });
+
+  return {
+    entrar(){ if (activo) return; activo = true; ultimo = 0; medir(); reiniciar(); estado = "espera"; ultimoPuntos = -1; mensaje(CONFIG.juegoInicio); raf = requestAnimationFrame(bucle); },
+    salir(){ activo = false; cancelAnimationFrame(raf); estado = "espera"; }
+  };
+})();
+
+/* ---------- Rompecabezas ---------- */
+window.Puzzle = (function(){
+  const tab = $("pzTablero"), caja = $("pzCaja"), cont = $("pzFotos"), fotos = CONFIG.puzzleFotos;
+  let n = +leerLS("regalo_pz_n") === 4 ? 4 : 3, f = 0, orden = [], sel = -1, movs = 0, t0 = 0, tiempo = 0, timer = 0, activo = false, listo = false, ratio = 1;
+  const imgs = [];
+  $("pzTitulo").textContent = CONFIG.puzzleTitulo;
+  const tm = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+  const clave = () => "regalo_pz_" + f + "_" + n;
+  function info(){ const r = +leerLS(clave()) || 0; $("pzInfo").textContent = movs + " mov · " + tm(tiempo) + (r ? " · mejor " + r : ""); }
+
+  fotos.forEach((u, i) => {
+    const b = document.createElement("button"); b.style.backgroundImage = 'url("' + u + '")'; b.setAttribute("aria-label", "Foto " + (i + 1));
+    b.onclick = () => { f = i; nuevo(); }; cont.appendChild(b);
+  });
+  function marcar(){
+    [...cont.children].forEach((b, i) => b.classList.toggle("on", i === f));
+    document.querySelectorAll("#pzNivel .chip").forEach(c => c.classList.toggle("on", +c.dataset.n === n));
+    $("pzPrev").style.backgroundImage = 'url("' + fotos[f] + '")';
+  }
+  function pintar(){
+    tab.style.gridTemplateColumns = tab.style.gridTemplateRows = "repeat(" + n + ",1fr)";
+    tab.innerHTML = "";
+    const aw = Math.max(ratio, 1) * n, ah = Math.max(1 / ratio, 1) * n; /* la foto se recorta al centro, como "cover" */
+    orden.forEach((p, i) => {
+      const b = document.createElement("button"), c = p % n, r = Math.floor(p / n);
+      b.className = "pz-pieza" + (i === sel ? " sel" : "");
+      b.style.backgroundImage = 'url("' + fotos[f] + '")';
+      b.style.backgroundSize = aw * 100 + "% " + ah * 100 + "%";
+      b.style.backgroundPosition = (c + (aw - n) / 2) / (aw - 1) * 100 + "% " + (r + (ah - n) / 2) / (ah - 1) * 100 + "%";
+      b.setAttribute("aria-label", "Pieza " + (i + 1) + " de " + n * n);
+      b.onclick = () => tocar(i);
+      tab.appendChild(b);
+    });
+  }
+  function nuevo(){
+    const k = f, im = imgs[k] || (imgs[k] = new Image());
+    function seguir(){
+      if (k !== f) return;
+      ratio = im.naturalWidth / im.naturalHeight || 1;
+      orden = Array.from({ length: n * n }, (_, i) => i);
+      do { for (let i = orden.length - 1; i > 0; i--) { const j = Math.floor(Math.random() * (i + 1)); [orden[i], orden[j]] = [orden[j], orden[i]]; } }
+      while (orden.every((p, i) => p === i));
+      sel = -1; movs = 0; t0 = 0; tiempo = 0; listo = false;
+      tab.classList.remove("listo"); $("pzPremio").hidden = true;
+      caja.classList.remove("ver"); $("pzVer").classList.remove("on"); $("pzVer").setAttribute("aria-pressed", "false");
+      marcar(); pintar(); info();
+    }
+    if (im.complete && im.naturalWidth) seguir();
+    else { im.onload = seguir; im.onerror = () => toast("No se pudo cargar esa foto"); im.src = fotos[k]; }
+  }
+  function tocar(i){
+    if (listo) return;
+    if (sel < 0) { sel = i; pintar(); return; }
+    if (sel === i) { sel = -1; pintar(); return; }
+    if (!t0) t0 = Date.now();
+    [orden[sel], orden[i]] = [orden[i], orden[sel]]; sel = -1; movs++;
+    pintar(); info();
+    if (orden.every((p, k) => p === k)) ganar();
+  }
+  function ganar(){
+    listo = true; tiempo = Math.round((Date.now() - t0) / 1000);
+    tab.classList.add("listo");
+    const r = +leerLS(clave()) || 0, rec = !r || movs < r;
+    if (rec) escribirLS(clave(), String(movs));
+    info(); $("pzPremio").hidden = false;
+    conCorazones($("pzPremioTxt"), CONFIG.puzzleFrase + " (" + movs + " movimientos, " + tm(tiempo) + (rec ? ", nuevo récord" : "") + ")");
+  }
+
+  document.querySelectorAll("#pzNivel .chip").forEach(c => c.onclick = () => { n = +c.dataset.n; escribirLS("regalo_pz_n", String(n)); nuevo(); });
+  $("pzMez").onclick = nuevo;
+  $("pzSig").onclick = () => { f = (f + 1) % fotos.length; nuevo(); };
+  $("pzVer").onclick = () => { const v = caja.classList.toggle("ver"); $("pzVer").classList.toggle("on", v); $("pzVer").setAttribute("aria-pressed", v); };
+
+  return {
+    entrar(){ if (activo) return; activo = true; if (!orden.length) nuevo(); timer = setInterval(() => { if (t0 && !listo) { tiempo = Math.round((Date.now() - t0) / 1000); info(); } }, 1000); },
+    salir(){ activo = false; clearInterval(timer); }
+  };
+})();
+
+/* ---------- Pupiletras ---------- */
+window.Pupi = (function(){
+  const g = $("spGrid"), listas = CONFIG.pupiListas, tabs = $("spTabs");
+  const COL = ["#ff6b9d", "#ffb36b", "#f3cfdc", "#8ad0ff", "#b99bff", "#9fe3b5", "#ffd36b", "#ff9bb8"];
+  const D = [[0,1],[1,0],[1,1],[-1,1],[0,-1],[-1,0],[-1,-1],[1,-1]];
+  let li = 0, N = 10, pal = [], letras = [], ini = -1, sel = [], t0 = 0, tiempo = 0, fin = false, timer = 0, activo = false;
+  const tm = s => Math.floor(s / 60) + ":" + String(s % 60).padStart(2, "0");
+  const quitar = t => t.normalize("NFD").replace(/[\u0300-\u036f]/g, "").toUpperCase().replace(/[^A-Z]/g, "");
+  const clave = () => "regalo_pupi_" + li;
+  $("spTitulo").textContent = CONFIG.pupiTitulo;
+  listas.forEach((l, i) => {
+    const b = document.createElement("button"); b.className = "chip"; b.textContent = l.nombre;
+    b.onclick = () => { li = i; cargar(); }; tabs.appendChild(b);
+  });
+  if (listas.length < 2) tabs.hidden = true;
+
+  function generar(){
+    for (let intento = 0; intento < 80; intento++) {
+      const m = Array(N * N).fill("");
+      const ok = [...pal].sort((a, b) => b.n.length - a.n.length).every(w => {
+        const L = w.n.length;
+        for (let k = 0; k < 300; k++) {
+          const d = D[Math.floor(Math.random() * D.length)], r = Math.floor(Math.random() * N), c = Math.floor(Math.random() * N);
+          const r2 = r + d[0] * (L - 1), c2 = c + d[1] * (L - 1);
+          if (r2 < 0 || r2 >= N || c2 < 0 || c2 >= N) continue;
+          let cabe = true;
+          for (let i = 0; i < L && cabe; i++) { const x = m[(r + d[0] * i) * N + c + d[1] * i]; if (x && x !== w.n[i]) cabe = false; }
+          if (!cabe) continue;
+          for (let i = 0; i < L; i++) m[(r + d[0] * i) * N + c + d[1] * i] = w.n[i];
+          w.p = r * N + c; return true;
+        }
+        return false;
+      });
+      if (ok) return m.map(x => x || "ABCDEFGHIJKLMNOPQRSTUVWXYZ"[Math.floor(Math.random() * 26)]);
+    }
+    return null;
+  }
+  function info(){
+    const mj = +leerLS(clave()) || 0;
+    $("spInfo").textContent = pal.filter(w => w.f).length + " de " + pal.length + " · " + tm(tiempo) + (mj ? " · mejor " + tm(mj) : "");
+  }
+  function lista(){
+    const c = $("spPal"); c.innerHTML = "";
+    pal.forEach(w => { const e = document.createElement("span"); e.textContent = w.t; if (w.f) e.className = "ok"; c.appendChild(e); });
+  }
+  function cargar(){
+    pal = listas[li].palabras.map(t => ({ t: t.trim().toUpperCase(), n: quitar(t), f: 0, p: 0 })).filter(w => w.n.length >= 2);
+    N = Math.max(CONFIG.pupiTam || 10, ...pal.map(w => w.n.length));
+    [...tabs.children].forEach((b, i) => b.classList.toggle("on", i === li));
+    nuevo();
+  }
+  function nuevo(){
+    pal.forEach(w => w.f = 0);
+    const m = generar();
+    if (!m) { toast("No pude acomodar las palabras de esta sopa"); return; }
+    letras = m; sel = []; ini = -1; t0 = 0; tiempo = 0; fin = false;
+    $("spPremio").hidden = true;
+    g.innerHTML = ""; g.style.gridTemplateColumns = g.style.gridTemplateRows = "repeat(" + N + ",1fr)";
+    g.style.fontSize = "clamp(9px," + 42 / N + "vw," + 200 / N + "px)";
+    letras.forEach(l => { const c = document.createElement("div"); c.className = "sp-c"; c.textContent = l; g.appendChild(c); });
+    lista(); info();
+  }
+  const celda = e => { const el = document.elementFromPoint(e.clientX, e.clientY), c = el && el.closest ? el.closest(".sp-c") : null; return c && g.contains(c) ? [...g.children].indexOf(c) : -1; };
+  function linea(a, b){
+    const r1 = Math.floor(a / N), c1 = a % N, dr = Math.floor(b / N) - r1, dc = b % N - c1;
+    if (dr && dc && Math.abs(dr) !== Math.abs(dc)) return [a];
+    const L = Math.max(Math.abs(dr), Math.abs(dc)), out = [];
+    for (let i = 0; i <= L; i++) out.push((r1 + Math.sign(dr) * i) * N + c1 + Math.sign(dc) * i);
+    return out;
+  }
+  const marcar = () => [...g.children].forEach((c, i) => c.classList.toggle("sel", sel.includes(i)));
+  g.onpointerdown = e => {
+    if (fin) return; e.preventDefault();
+    const i = celda(e); if (i < 0) return;
+    if (!t0) t0 = Date.now();
+    ini = i; sel = [i]; marcar();
+    try { g.setPointerCapture(e.pointerId); } catch (x) {}
+  };
+  g.onpointermove = e => { if (ini < 0) return; const i = celda(e); if (i < 0) return; sel = linea(ini, i); marcar(); };
+  g.onpointerup = g.onpointercancel = () => {
+    if (ini < 0) return; ini = -1;
+    const s = sel.map(i => letras[i]).join(""), r = s.split("").reverse().join("");
+    const w = sel.length > 1 ? pal.find(x => !x.f && (x.n === s || x.n === r)) : null;
+    if (w) {
+      w.f = 1; const col = COL[pal.indexOf(w) % COL.length];
+      sel.forEach(i => { g.children[i].style.background = col; g.children[i].style.color = "#2b0f1a"; });
+      lista(); info();
+      if (pal.every(x => x.f)) ganar(); else toast("¡Encontraste " + w.t + "!");
+    }
+    sel = []; marcar();
+  };
+  function ganar(){
+    fin = true; tiempo = Math.round((Date.now() - t0) / 1000);
+    const mj = +leerLS(clave()) || 0, rec = !mj || tiempo < mj;
+    if (rec) escribirLS(clave(), String(tiempo));
+    info(); $("spPremio").hidden = false;
+    conCorazones($("spPremioTxt"), CONFIG.pupiFrase + " (" + tm(tiempo) + (rec ? ", nuevo récord" : "") + ")");
+  }
+  $("spNueva").onclick = nuevo;
+  $("spPista").onclick = () => {
+    const w = pal.filter(x => !x.f); if (fin || !w.length) return;
+    const c = g.children[w[Math.floor(Math.random() * w.length)].p]; c.classList.add("pista");
+    setTimeout(() => c.classList.remove("pista"), 2000);
+  };
+  return {
+    entrar(){ if (activo) return; activo = true; if (!letras.length) cargar(); timer = setInterval(() => { if (t0 && !fin) { tiempo = Math.round((Date.now() - t0) / 1000); info(); } }, 1000); },
+    salir(){ activo = false; clearInterval(timer); }
+  };
+})();
+
+/* ---------- Páginas: 1 bienvenida, 2 tiempo + mensaje, 3 playlist, 4 juego, 5 rompecabezas, 6 pupiletras ---------- */
 function aplicarPagina(){
-  const p = location.hash === "#playlist" ? "playlist" : "tiempo";
+  const p = location.hash === "#playlist" ? "playlist" : location.hash === "#juego" ? "juego" : location.hash === "#puzzle" ? "puzzle" : location.hash === "#pupiletras" ? "pupi" : "tiempo";
   document.body.dataset.pagina = p;
   window.scrollTo(0, 0);
-  if (p === "tiempo" && visorAbierto) cerrarVisor();
+  if (p !== "playlist" && visorAbierto) cerrarVisor();
+  if (window.Cielo) p === "tiempo" ? Cielo.entrar() : Cielo.salir();
+  if (window.Juego) p === "juego" ? Juego.entrar() : Juego.salir();
+  if (window.Puzzle) p === "puzzle" ? Puzzle.entrar() : Puzzle.salir();
+  if (window.Pupi) p === "pupi" ? Pupi.entrar() : Pupi.salir();
 }
-$("btnLista").textContent = CONFIG.botonLista;
 $("cabezaTitulo").textContent = CONFIG.titulo;
 $("btnLista").onclick = () => { location.hash = "playlist"; };
 $("btnVolver").onclick = () => { location.hash = "tiempo"; };
+$("btnJuego").onclick = () => { location.hash = "juego"; };
+$("btnVolverJ").onclick = () => { location.hash = "tiempo"; };
+$("mtPuzzle").textContent = CONFIG.puzzleFotos.length + " fotos";
+$("btnPuzzle").onclick = () => { location.hash = "puzzle"; };
+$("btnVolverP").onclick = () => { location.hash = "tiempo"; };
+$("mtPupi").textContent = CONFIG.pupiListas.length + (CONFIG.pupiListas.length === 1 ? " sopa" : " sopas");
+$("btnPupi").onclick = () => { location.hash = "pupiletras"; };
+$("btnVolverS").onclick = () => { location.hash = "tiempo"; };
 window.addEventListener("hashchange", aplicarPagina);
 aplicarPagina();
 
