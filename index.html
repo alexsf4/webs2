@@ -334,7 +334,8 @@ body[data-pagina="memo"]:not(.tiene-cancion){padding-bottom:40px}
 .mi.g5{background:linear-gradient(135deg,#6be3b0,#1c4f5a)}
 .memo{padding:18px 32px 0;max-width:704px}
 .memo-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:8px;width:100%;max-width:440px;margin:0 auto}
-.mc{display:block;perspective:700px;aspect-ratio:1;padding:0;border-radius:12px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.mc{display:block;position:relative;transition:transform .55s cubic-bezier(.4,0,.2,1);perspective:700px;aspect-ratio:1;padding:0;border-radius:12px;-webkit-tap-highlight-color:transparent;touch-action:manipulation}
+.mc.sinmov{transition:none!important}
 .mc-in{display:block;position:relative;width:100%;height:100%;transform-style:preserve-3d;transition:transform .45s ease}
 .mc.v .mc-in,.mc.ok .mc-in{transform:rotateY(180deg)}
 .mc-c{position:absolute;inset:0;border-radius:12px;overflow:hidden;display:grid;place-items:center;backface-visibility:hidden;-webkit-backface-visibility:hidden}
@@ -347,7 +348,7 @@ body[data-pagina="memo"]:not(.tiene-cancion){padding-bottom:40px}
 .mc.ok .mc-frente{border-color:var(--rosa);box-shadow:0 0 0 2px var(--rosa) inset,0 0 14px rgba(255,107,157,.45)}
 .mc.ok{cursor:default}
 @media (max-width:640px){.memo{padding:16px 20px 0}}
-@media (prefers-reduced-motion:reduce){.mc-in{transition:none}}
+@media (prefers-reduced-motion:reduce){.mc-in,.mc{transition:none}}
 </style>
 <script>try{if(sessionStorage.getItem("regalo_abierto"))document.documentElement.classList.add("sin-bienvenida")}catch(e){}</script>
 </head>
@@ -615,6 +616,8 @@ const CONFIG = {
   memoCarpeta: "fotos-juego",
   memoFotos: [],
   memoPares: 10,
+  /* Cuánto tiempo (en milisegundos) se ven las cartas destapadas al empezar, antes de juntarse y barajarse */
+  memoVerMs: 3500,
   memoFrase: "Encontraste todos los pares, mi niña. Tú y yo, siempre hacemos buena pareja <3",
 
   juegoPremioPuntos: 300,
@@ -1655,7 +1658,9 @@ window.Memo = (function(){
   const esImg = n => /\.(jpe?g|png|webp|gif|avif)$/i.test(n);
   const ruta = n => CONFIG.memoCarpeta + "/" + encodeURIComponent(n);
   $("memoTitulo").textContent = CONFIG.memoTitulo;
-  $("memoAyuda").textContent = "Toca dos cartas para destaparlas. Si son iguales se quedan; si no, se vuelven a tapar.";
+  const AYUDA = "Toca dos cartas para destaparlas. Si son iguales se quedan; si no, se vuelven a tapar.";
+  $("memoAyuda").textContent = AYUDA;
+  const dormir = ms => new Promise(r => setTimeout(r, ms));
   grid.setAttribute("aria-label", "Cartas del memorama");
 
   /* Lista de fotos: primero lee la carpeta del repositorio (API pública de GitHub); si falla, usa memoFotos */
@@ -1682,10 +1687,10 @@ window.Memo = (function(){
   function pintar(){
     grid.innerHTML = "";
     cartas.forEach((c, i) => {
-      const b = document.createElement("button"); b.className = "mc"; b.setAttribute("aria-label", "Carta " + (i + 1));
+      const b = document.createElement("button"); b.className = "mc v"; b.setAttribute("aria-label", "Carta " + (i + 1));
       const fr = c.img ? '<img alt="" draggable="false" src="' + c.img + '">' : '<span class="sim" aria-hidden="true">' + c.sim + '</span>';
       b.innerHTML = '<span class="mc-in"><span class="mc-c mc-dorso">' + HEART_SVG + '</span><span class="mc-c mc-frente"' + (c.img ? "" : ' style="background:' + c.fondo + '"') + '>' + fr + '</span></span>';
-      b.onclick = () => tocar(i, b);
+      b.onclick = () => tocar(cartas.indexOf(c), b);
       c.el = b; grid.appendChild(b);
     });
   }
@@ -1704,7 +1709,39 @@ window.Memo = (function(){
     for (let i = 0; i < PARES; i++) base.push(i < buenas.length ? { id: "f" + i, img: buenas[i] } : { id: "s" + i, sim: simbolos[(i - buenas.length) % simbolos.length], fondo: FONDOS[i % FONDOS.length] });
     cartas = mezclar(base.flatMap(c => [Object.assign({}, c), Object.assign({}, c)]));
     pintar(); grid.style.opacity = "";
+    bloqueo = true;
     timer = setInterval(() => { if (t0 && !fin) { tiempo = Math.round((Date.now() - t0) / 1000); info(); } }, 1000);
+    await intro(mi);
+  }
+  /* Al empezar: las cartas se ven destapadas, se voltean, se juntan en un mazo, se barajan y se reparten tapadas en otro orden */
+  async function intro(mi){
+    const A = $("memoAyuda"), vivo = () => mi === token;
+    A.textContent = "Memoriza dónde está cada carta…";
+    await dormir(CONFIG.memoVerMs || 3500); if (!vivo()) return;
+    const az = k => (Math.random() - .5) * k;
+    cartas.forEach(c => { c.jx = az(10); c.jy = az(10); c.rot = az(16); });
+    const pila = (extra, i0) => cartas.forEach((c, i) => {
+      const e = c.el;
+      c.dx = grid.offsetLeft + grid.offsetWidth / 2 - (e.offsetLeft + e.offsetWidth / 2) + c.jx;
+      c.dy = grid.offsetTop + grid.offsetHeight / 2 - (e.offsetTop + e.offsetHeight / 2) + c.jy;
+      e.style.transform = "translate(" + (c.dx + (extra ? az(extra) : 0)) + "px," + (c.dy + (extra ? az(extra) : 0)) + "px) rotate(" + (c.rot + (extra ? az(extra) : 0)) + "deg)";
+      e.style.zIndex = i;
+    });
+    A.textContent = "Barajando…";
+    cartas.forEach(c => c.el.classList.remove("v"));           /* se voltean */
+    await dormir(500); if (!vivo()) return;
+    pila(0);                                                    /* se juntan */
+    await dormir(850); if (!vivo()) return;
+    for (let k = 0; k < 4; k++) { pila(70); await dormir(280); if (!vivo()) return; }   /* se barajan */
+    pila(0); await dormir(380); if (!vivo()) return;
+    mezclar(cartas);                                            /* nuevo orden al azar */
+    cartas.forEach(c => { c.el.classList.add("sinmov"); grid.appendChild(c.el); });
+    pila(0); void grid.offsetWidth;
+    cartas.forEach(c => c.el.classList.remove("sinmov"));
+    cartas.forEach((c, i) => { c.el.style.transitionDelay = i * 45 + "ms"; c.el.style.transform = ""; });   /* se reparten */
+    await dormir(cartas.length * 45 + 650); if (!vivo()) return;
+    cartas.forEach(c => { c.el.style.transitionDelay = ""; c.el.style.zIndex = ""; });
+    A.textContent = AYUDA; bloqueo = false;
   }
   function tocar(i, el){
     if (bloqueo || fin) return;
