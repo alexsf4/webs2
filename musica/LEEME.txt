@@ -1,5 +1,0 @@
-Cada playlist tiene su propia carpeta:
-  musica/alexander/   -> mp3 de la playlist de Alexander
-  musica/yaddi/       -> mp3 de la playlist de Yaddi
-
-Para una playlist nueva: crea otra carpeta aqui y agregala en PLAYLISTS (index.html).
