@@ -1,0 +1,245 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Para ti</title>
+<style>
+:root{
+  --bg:#121212; --panel:#181818; --hover:#2a2a2a; --text:#ffffff; --muted:#b3b3b3; --green:#1ed760;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html,body{height:100%}
+body{background:var(--bg);color:var(--text);font-family:"Circular","Helvetica Neue",Helvetica,Arial,sans-serif;padding-bottom:110px}
+button{background:none;border:0;color:inherit;cursor:pointer;font:inherit}
+button:focus-visible{outline:2px solid var(--green);outline-offset:2px}
+
+.hero{display:flex;gap:24px;align-items:flex-end;padding:56px 32px 28px;background:linear-gradient(180deg,#5a2a3a 0%,#2b1a22 70%,var(--bg) 100%)}
+.cover{width:min(232px,38vw);aspect-ratio:1;object-fit:cover;border-radius:6px;box-shadow:0 8px 40px rgba(0,0,0,.55);background:#333;flex:none}
+.hero small{font-size:.8rem;font-weight:700}
+.hero h1{font-size:clamp(2rem,7vw,5rem);line-height:1.02;font-weight:900;letter-spacing:-.03em;margin:8px 0 14px}
+.hero p{color:var(--muted);font-size:.9rem;line-height:1.5}
+.hero p b{color:var(--text)}
+
+.controls{display:flex;align-items:center;gap:24px;padding:22px 32px}
+.big-play{width:56px;height:56px;border-radius:50%;background:var(--green);display:grid;place-items:center;transition:transform .1s}
+.big-play:hover{transform:scale(1.06)}
+.big-play svg{width:24px;height:24px;fill:#000}
+
+.list{padding:0 16px}
+.head,.row{display:grid;grid-template-columns:40px 1fr 60px;align-items:center;gap:12px;padding:8px 16px;border-radius:4px}
+.head{color:var(--muted);font-size:.8rem;border-bottom:1px solid #2a2a2a;border-radius:0;margin-bottom:8px}
+.row{width:100%;text-align:left}
+.row:hover{background:var(--hover)}
+.row .n{color:var(--muted);text-align:center}
+.row .t{display:block;font-weight:500}
+.row .a{display:block;color:var(--muted);font-size:.85rem;margin-top:2px}
+.row .d{color:var(--muted);font-size:.85rem;text-align:right}
+.row.on .t,.row.on .n{color:var(--green)}
+
+.embed{padding:0 32px;max-width:760px}
+.embed iframe{width:100%;border:0;border-radius:12px;display:block}
+.spotify .controls,.spotify .list,.spotify .bar,.spotify .toast{display:none}
+.spotify{padding-bottom:40px}
+.msg{margin:40px 32px 0;padding:24px;border-radius:8px;background:var(--panel);max-width:560px;line-height:1.6;color:var(--muted)}
+.msg h2{color:var(--text);font-size:1.1rem;margin-bottom:8px}
+
+.bar{position:fixed;left:0;right:0;bottom:0;background:#000;border-top:1px solid #1f1f1f;padding:12px 16px calc(12px + env(safe-area-inset-bottom,0px));display:grid;grid-template-columns:1fr 2fr 1fr;gap:16px;align-items:center}
+.now{display:flex;gap:12px;align-items:center;min-width:0}
+.now img{width:56px;height:56px;border-radius:4px;object-fit:cover;background:#333}
+.now .t{font-size:.9rem;font-weight:500;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.now .a{font-size:.75rem;color:var(--muted)}
+.mid{display:flex;flex-direction:column;align-items:center;gap:8px}
+.btns{display:flex;align-items:center;gap:20px}
+.btns svg{width:20px;height:20px;fill:var(--muted)}
+.btns button:hover svg{fill:#fff}
+.btns .pp{width:34px;height:34px;border-radius:50%;background:#fff;display:grid;place-items:center}
+.btns .pp svg{fill:#000;width:16px;height:16px}
+.btns .pp:hover{transform:scale(1.06)}
+.seek{display:flex;align-items:center;gap:8px;width:100%;max-width:560px;font-size:.7rem;color:var(--muted)}
+.seek input{flex:1}
+.vol{display:flex;justify-content:flex-end;align-items:center;gap:8px}
+.vol input{width:100px}
+.vol svg{width:18px;height:18px;fill:var(--muted)}
+
+input[type=range]{-webkit-appearance:none;appearance:none;height:4px;border-radius:2px;background:linear-gradient(to right,#fff var(--v,0%),#4d4d4d var(--v,0%));cursor:pointer}
+input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:12px;height:12px;border-radius:50%;background:#fff;opacity:0}
+input[type=range]:hover{background:linear-gradient(to right,var(--green) var(--v,0%),#4d4d4d var(--v,0%))}
+input[type=range]:hover::-webkit-slider-thumb{opacity:1}
+input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radius:50%;background:#fff}
+
+.toast{position:fixed;left:50%;bottom:130px;transform:translateX(-50%);background:#fff;color:#000;padding:10px 18px;border-radius:6px;font-size:.85rem;font-weight:600;opacity:0;pointer-events:none;transition:opacity .2s;max-width:90vw;text-align:center}
+.toast.show{opacity:1}
+
+@media (max-width:700px){
+  .hero{flex-direction:column;align-items:flex-start;padding:40px 20px 20px}
+  .controls{padding:18px 20px}
+  .list{padding:0 4px}
+  .bar{grid-template-columns:1fr auto;grid-template-rows:auto auto}
+  .mid{grid-column:1/-1;grid-row:2}
+  .vol{display:none}
+  body{padding-bottom:150px}
+  .toast{bottom:170px}
+}
+@media (max-width:700px){.embed{padding:0 16px}}
+@media (prefers-reduced-motion:reduce){*{transition:none!important}}
+</style>
+</head>
+<body>
+
+<header class="hero">
+  <img class="cover" id="cover" alt="Nuestra foto">
+  <div>
+    <small>Playlist</small>
+    <h1 id="title"></h1>
+    <p id="desc"></p>
+  </div>
+</header>
+
+<div class="controls">
+  <button class="big-play" id="bigPlay" aria-label="Reproducir"><svg viewBox="0 0 24 24"><path id="bigIcon" d="M8 5v14l11-7z"/></svg></button>
+</div>
+
+<section class="embed" id="embed" hidden></section>
+
+<main class="list">
+  <div class="head"><span style="text-align:center">#</span><span>Título</span><span style="text-align:right">Duración</span></div>
+  <div id="rows"></div>
+</main>
+
+<section class="msg">
+  <h2 id="msgTitle"></h2>
+  <p id="msgText"></p>
+</section>
+
+<div class="bar">
+  <div class="now">
+    <img id="npImg" alt="">
+    <div style="min-width:0"><div class="t" id="npTitle">Elige una canción</div><div class="a" id="npArtist"></div></div>
+  </div>
+  <div class="mid">
+    <div class="btns">
+      <button id="prev" aria-label="Anterior"><svg viewBox="0 0 24 24"><path d="M6 6h2v12H6zm3.5 6 8.5 6V6z"/></svg></button>
+      <button class="pp" id="pp" aria-label="Reproducir o pausar"><svg viewBox="0 0 24 24"><path id="ppIcon" d="M8 5v14l11-7z"/></svg></button>
+      <button id="next" aria-label="Siguiente"><svg viewBox="0 0 24 24"><path d="M16 6h2v12h-2zM6 18l8.5-6L6 6z"/></svg></button>
+    </div>
+    <div class="seek"><span id="cur">0:00</span><input type="range" id="seek" min="0" max="100" value="0" step="0.1" aria-label="Progreso"><span id="dur">0:00</span></div>
+  </div>
+  <div class="vol"><svg viewBox="0 0 24 24"><path d="M3 9v6h4l5 5V4L7 9zm13.5 3A4.5 4.5 0 0 0 14 8v8a4.5 4.5 0 0 0 2.5-4z"/></svg><input type="range" id="vol" min="0" max="1" step="0.01" value="0.8" aria-label="Volumen"></div>
+</div>
+
+<div class="toast" id="toast"></div>
+<audio id="audio" preload="metadata"></audio>
+
+<script>
+/* ============ PERSONALIZA AQUÍ ============ */
+const CONFIG = {
+  foto: "https://files.catbox.moe/0qlgsr.jpg",
+  /* SPOTIFY (opcional): pega aquí el enlace de tu playlist, álbum o canción.
+     Ejemplo: "https://open.spotify.com/playlist/37i9dQZF1DXcBWIGoYBM5M"
+     Si lo dejas vacío "", se usa el reproductor con tus mp3 de la carpeta musica. */
+  spotify: "",
+  titulo: "Nuestra playlist",
+  de: "Tu nombre",
+  para: "Su nombre",
+  descripcion: "Canciones que me recuerdan a ti.",
+  mensajeTitulo: "Para ti",
+  mensaje: "Escribe aquí tu mensaje: por qué hiciste esta playlist, qué significa cada canción, una fecha especial, etc."
+};
+
+/* Pon tus archivos mp3 en la carpeta "musica" junto a este index.html */
+const CANCIONES = [
+  { titulo: "Nombre de la canción 1", artista: "Artista", archivo: "musica/cancion1.mp3" },
+  { titulo: "Nombre de la canción 2", artista: "Artista", archivo: "musica/cancion2.mp3" },
+  { titulo: "Nombre de la canción 3", artista: "Artista", archivo: "musica/cancion3.mp3" }
+];
+/* ========================================== */
+
+const $ = id => document.getElementById(id);
+const audio = $("audio");
+let idx = -1;
+
+$("cover").src = $("npImg").src = CONFIG.foto;
+$("title").textContent = CONFIG.titulo;
+$("desc").innerHTML = `Hecha por <b>${CONFIG.de}</b> para <b>${CONFIG.para}</b> · ${CANCIONES.length} canciones<br>${CONFIG.descripcion}`;
+$("msgTitle").textContent = CONFIG.mensajeTitulo;
+$("msgText").textContent = CONFIG.mensaje;
+document.title = CONFIG.titulo;
+
+const MODO_SPOTIFY = !!CONFIG.spotify.trim();
+if (MODO_SPOTIFY) {
+  const m = CONFIG.spotify.match(/open\.spotify\.com\/(?:intl-[a-z]+\/)?(playlist|album|track|artist|episode|show)\/([A-Za-z0-9]+)/);
+  if (m) {
+    document.body.classList.add("spotify");
+    const f = document.createElement("iframe");
+    f.src = `https://open.spotify.com/embed/${m[1]}/${m[2]}?theme=0`;
+    f.height = m[1] === "track" || m[1] === "episode" ? 152 : 400;
+    f.allow = "autoplay; clipboard-write; encrypted-media; fullscreen; picture-in-picture";
+    f.loading = "lazy";
+    f.title = "Reproductor de Spotify";
+    $("embed").appendChild(f);
+    $("embed").hidden = false;
+    $("desc").innerHTML = `Hecha por <b>${CONFIG.de}</b> para <b>${CONFIG.para}</b><br>${CONFIG.descripcion}`;
+  } else {
+    console.warn("El enlace de Spotify no es válido");
+  }
+}
+
+const fmt = s => isFinite(s) ? Math.floor(s/60) + ":" + String(Math.floor(s%60)).padStart(2,"0") : "0:00";
+const PLAY = "M8 5v14l11-7z", PAUSE = "M6 5h4v14H6zm8 0h4v14h-4z";
+const fill = el => el.style.setProperty("--v", (el.value - el.min) / (el.max - el.min) * 100 + "%");
+
+function toast(t){ const e=$("toast"); e.textContent=t; e.classList.add("show"); clearTimeout(toast.t); toast.t=setTimeout(()=>e.classList.remove("show"),2800); }
+
+const rows = $("rows");
+(document.body.classList.contains("spotify") ? [] : CANCIONES).forEach((c,i)=>{
+  const b = document.createElement("button");
+  b.className = "row";
+  b.innerHTML = `<span class="n">${i+1}</span><span><span class="t"></span><span class="a"></span></span><span class="d">–:––</span>`;
+  b.querySelector(".t").textContent = c.titulo;
+  b.querySelector(".a").textContent = c.artista;
+  b.onclick = () => (i === idx ? toggle() : play(i));
+  rows.appendChild(b);
+  const probe = new Audio(); probe.preload = "metadata"; probe.src = c.archivo;
+  probe.onloadedmetadata = () => b.querySelector(".d").textContent = fmt(probe.duration);
+});
+
+function play(i){
+  idx = (i + CANCIONES.length) % CANCIONES.length;
+  const c = CANCIONES[idx];
+  audio.src = c.archivo;
+  $("npTitle").textContent = c.titulo;
+  $("npArtist").textContent = c.artista;
+  [...rows.children].forEach((r,k)=>r.classList.toggle("on",k===idx));
+  audio.play().catch(()=>{});
+}
+function toggle(){
+  if (idx < 0) return play(0);
+  audio.paused ? audio.play() : audio.pause();
+}
+
+$("bigPlay").onclick = $("pp").onclick = toggle;
+$("next").onclick = () => play(idx + 1);
+$("prev").onclick = () => audio.currentTime > 3 ? (audio.currentTime = 0) : play(idx - 1);
+
+audio.onplay = audio.onpause = () => {
+  const d = audio.paused ? PLAY : PAUSE;
+  $("ppIcon").setAttribute("d", d); $("bigIcon").setAttribute("d", d);
+};
+audio.onended = () => play(idx + 1);
+audio.onerror = () => { if (idx >= 0) toast("No se encontró el archivo: " + CANCIONES[idx].archivo); };
+audio.onloadedmetadata = () => $("dur").textContent = fmt(audio.duration);
+audio.ontimeupdate = () => {
+  if (!audio.duration) return;
+  $("seek").value = audio.currentTime / audio.duration * 100;
+  $("cur").textContent = fmt(audio.currentTime);
+  fill($("seek"));
+};
+$("seek").oninput = e => { if (audio.duration) audio.currentTime = e.target.value / 100 * audio.duration; fill(e.target); };
+$("vol").oninput = e => { audio.volume = e.target.value; fill(e.target); };
+audio.volume = 0.8; fill($("vol")); fill($("seek"));
+
+document.addEventListener("keydown", e => { if (e.code === "Space" && e.target === document.body) { e.preventDefault(); toggle(); } });
+</script>
+</body>
+</html>
