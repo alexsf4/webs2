@@ -49,6 +49,14 @@ input[type=text],input[type=password]{background:var(--panel);border:1px solid v
 .res .btn[disabled]{opacity:.5;cursor:default;background:none;color:var(--rosa)}
 .nota{color:var(--muted);font-size:.85rem;padding:12px}
 
+.top #btnAnadir{margin-left:auto}
+.top #btnEditar{margin-left:0}
+.top .edit-only{display:none}
+body.edit .top .edit-only{display:inline-block}
+#buscador[hidden]{display:none!important}
+.estado{color:var(--muted);font-size:.85rem;margin-top:8px;line-height:1.4}
+.claves{display:flex;flex-direction:column;gap:8px;margin-bottom:10px}
+.claves p{color:var(--muted);font-size:.8rem;line-height:1.4}
 .edit-only{display:none}
 body.edit .edit-only{display:block}
 
@@ -133,6 +141,7 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
 
 <div class="top">
   <div class="tabs" id="tabs"></div>
+  <button class="btn" id="btnAnadir">Añadir música</button>
   <button class="btn" id="btnEditar">Editar listas</button>
 </div>
 
@@ -145,13 +154,18 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
   </div>
 </div>
 
-<div class="panel edit-only" id="buscador">
-  <div style="margin-bottom:8px; font-size:0.85rem; color:var(--muted);">Pega el enlace de YouTube (se agregará a la lista actual seleccionada):</div>
+<div class="panel edit-only" id="buscador" hidden>
+  <div class="claves" id="claves" hidden>
+    <p>Se pide una sola vez y queda guardado solo en este navegador.</p>
+    <input type="password" id="kGh" placeholder="Token de GitHub" autocomplete="off">
+    <button class="btn" id="btnGuardarClaves">Guardar token</button>
+  </div>
   <div class="fila">
-    <input type="text" id="q" placeholder="https://www.youtube.com/watch?v=..." autocomplete="off">
-    <button class="btn" id="btnBuscar">Agregar</button>
+    <input type="text" id="q" placeholder="Busca una canción por nombre" autocomplete="off">
+    <button class="btn" id="btnBuscar">Buscar</button>
   </div>
   <div class="res" id="resultados" hidden></div>
+  <div class="estado" id="estado" hidden></div>
 </div>
 
 <section class="player">
@@ -221,8 +235,12 @@ const CONFIG = {
   /* El correo que creaste en Firebase > Authentication > Usuarios. La clave es la que escribirán ustedes al pulsar "Editar listas". */
   usuarioCompartido: "regalo@ejemplo.com",
 
-  /* Clave de la API de búsqueda de YouTube (mira LEEME.txt, paso 2) */
-  youtubeKey: ""
+  
+  /* Subida automática de los mp3 a tu repositorio de GitHub */
+  github: { usuario: "", repo: "", rama: "main" },
+  evogbKey: "evogb-kOXevp1J",
+  buscaEndpoint: "https://api.evogb.org/search/yt",
+  descargaEndpoint: "https://api.evogb.org/dl/ytmp3"
 };
 /* ========================================== */
 
@@ -264,6 +282,7 @@ let sonandoDocId = null;
 let modo = null;          /* "yt" o "mp3" */
 let unsub = null;
 let editando = false;
+let abrirAlEntrar = false;
 
 /* ---------- Pestañas ---------- */
 function pintarTabs(){
@@ -298,6 +317,7 @@ function pintarFilas(){
     rows.appendChild(v); return;
   }
   canciones.forEach((c, i) => {
+    const prep = c.disponible && c.disponible > Date.now();
     const r = document.createElement("div");
     r.className = "row" + (c.docId === sonandoDocId ? " on" : "");
     const n = document.createElement("span"); n.className = "n"; n.textContent = i + 1;
@@ -305,12 +325,12 @@ function pintarFilas(){
     const img = document.createElement("img"); img.alt = ""; img.src = c.thumb || CONFIG.foto;
     const tx = document.createElement("span"); tx.style.minWidth = "0";
     const t = document.createElement("span"); t.className = "t"; t.textContent = c.titulo;
-    const a = document.createElement("span"); a.className = "a"; a.textContent = c.artista || "";
+    const a = document.createElement("span"); a.className = "a"; a.textContent = prep ? "Preparando… estará lista en unos minutos" : (c.artista || "");
     tx.appendChild(t); tx.appendChild(a); info.appendChild(img); info.appendChild(tx);
     const x = document.createElement("button"); x.className = "x"; x.textContent = "✕"; x.title = "Quitar de la lista"; x.setAttribute("aria-label", "Quitar " + c.titulo);
     x.onclick = ev => { ev.stopPropagation(); quitar(c); };
     r.appendChild(n); r.appendChild(info); r.appendChild(x);
-    r.onclick = () => { if (c.docId === sonandoDocId && cola.length) toggle(); else { cola = canciones.slice(); play(i); } };
+    r.onclick = () => { if (prep) { toast("Esta canción se está publicando, espera unos minutos"); return; } if (c.docId === sonandoDocId && cola.length) toggle(); else { cola = canciones.slice(); play(i); } };
     rows.appendChild(r);
   });
 }
@@ -326,7 +346,7 @@ function entrar(){
   const clave = $("clave").value;
   if (!clave) { toast("Escribe la clave"); return; }
   auth.signInWithEmailAndPassword(CONFIG.usuarioCompartido, clave)
-    .then(() => { $("clave").value = ""; $("loginBox").hidden = true; })
+    .then(() => { $("clave").value = ""; $("loginBox").hidden = true; if (abrirAlEntrar) { abrirAlEntrar = false; $("buscador").hidden = false; mostrarClaves(); $("q").focus(); } })
     .catch(() => toast("Clave incorrecta"));
 }
 $("btnEntrar").onclick = entrar;
@@ -336,7 +356,7 @@ if (auth) auth.onAuthStateChanged(u => {
   editando = !!u;
   document.body.classList.toggle("edit", editando);
   $("btnEditar").textContent = editando ? "Salir de edición" : "Editar listas";
-  if (!editando) { $("resultados").hidden = true; }
+  if (!editando) { $("resultados").hidden = true; $("buscador").hidden = true; }
   pintarFilas();
 });
 
@@ -356,43 +376,95 @@ window.agregarCancionPropia = (listaId, d) => agregar({ tipo: "mp3", titulo: d.t
 
 /* ---------- Búsqueda en YouTube ---------- */
 async function buscar(){
-  const ytUrl = $("q").value.trim();
-  if (!ytUrl) { toast("Pega un enlace de YouTube"); return; }
-  const cont = $("resultados"); cont.hidden = false; cont.innerHTML = '<div class="nota">Consultando tu API de YouTube…</div>';
+  const q = $("q").value.trim();
+  if (!q) { toast("Escribe el nombre de una canción"); return; }
+  const dl = CONFIG.evogbKey;
+  const cont = $("resultados"); cont.hidden = false; cont.innerHTML = '<div class="nota">Buscando…</div>';
   try {
-    const apiCallUrl = "https://api.evogb.org/dl/ytmp3?key=evogb-kOXevp1J&url=" + encodeURIComponent(ytUrl);
-    const r = await fetch(apiCallUrl);
+    const r = await fetch(CONFIG.buscaEndpoint + "?key=" + encodeURIComponent(dl) + "&query=" + encodeURIComponent(q));
     const j = await r.json();
-    if (!j.status || !j.data || !j.data.dl) throw new Error("No se pudo obtener el audio con la API");
-    
-    const titulo = decodificar(j.data.title || "Canción de YouTube");
-    const thumb = j.data.thumbnail || CONFIG.foto;
-    const audioDlUrl = j.data.dl;
-    
+    if (!j.status) throw new Error(j.reason || j.message || j.msg || ("HTTP " + r.status));
     cont.innerHTML = "";
-    const fila = document.createElement("div"); fila.className = "it";
-    const im = document.createElement("img"); im.alt = ""; im.src = thumb;
-    const tx = document.createElement("div"); tx.className = "tx";
-    const t = document.createElement("div"); t.className = "t"; t.textContent = titulo;
-    const a = document.createElement("div"); a.className = "a"; a.textContent = "YouTube MP3 (API)";
-    tx.appendChild(t); tx.appendChild(a);
-    const b = document.createElement("button"); b.className = "btn"; b.textContent = "Agregar a la lista";
-    b.onclick = () => {
-      b.disabled = true;
-      agregar({ tipo: "mp3", titulo: titulo, artista: "YouTube", url: audioDlUrl, thumb: thumb })
-        .then(() => { b.textContent = "¡Agregada!"; toast("Canción agregada con éxito"); $("q").value = ""; cont.hidden = true; })
-        .catch(() => { b.disabled = false; toast("No se pudo agregar"); });
-    };
-    fila.appendChild(im); fila.appendChild(tx); fila.appendChild(b);
-    cont.appendChild(fila);
+    const items = (j.result || []).map(it => {
+      const m = String(it.url || "").match(/[?&]v=([\w-]{11})/) || String(it.url || "").match(/youtu\.be\/([\w-]{11})/);
+      return m ? { vid: m[1], titulo: it.title, canal: it.autor || "", dur: it.duration || "", thumb: it.banner || "" } : null;
+    }).filter(Boolean).slice(0, 8);
+    if (!items.length) { cont.innerHTML = '<div class="nota">No encontré nada. Prueba con otro nombre.</div>'; return; }
+    items.forEach(v => {
+      const fila = document.createElement("div"); fila.className = "it";
+      const im = document.createElement("img"); im.alt = ""; im.src = v.thumb;
+      const tx = document.createElement("div"); tx.className = "tx";
+      const t = document.createElement("div"); t.className = "t"; t.textContent = v.titulo;
+      const a = document.createElement("div"); a.className = "a"; a.textContent = v.canal + (v.dur ? " · " + v.dur : "");
+      tx.appendChild(t); tx.appendChild(a);
+      const bt = document.createElement("button"); bt.className = "btn"; bt.textContent = "Agregar";
+      if (canciones.some(c => c.id === v.vid)) { bt.textContent = "Ya está"; bt.disabled = true; }
+      bt.onclick = () => anadirMp3(v, bt);
+      fila.appendChild(im); fila.appendChild(tx); fila.appendChild(bt);
+      cont.appendChild(fila);
+    });
   } catch (e) {
     console.error(e);
     cont.innerHTML = "";
     const n = document.createElement("div"); n.className = "nota";
-    n.textContent = "Error con la API: " + e.message;
+    n.textContent = "No se pudo buscar: " + (e.message === "Failed to fetch" ? "el navegador bloqueó la conexión (CORS) con la API." : e.message);
     cont.appendChild(n);
   }
 }
+
+/* ---------- Añadir música: descarga mp3 + subida a GitHub ---------- */
+const LS = { dl: "regalo_dl", gh: "regalo_gh" };
+const guardado = k => { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } };
+const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
+function mostrarClaves(){ $("claves").hidden = !!guardado(LS.gh); }
+function estado(t){ const e = $("estado"); e.textContent = t || ""; e.hidden = !t; }
+function aBase64(buf){ const u = new Uint8Array(buf); let s = ""; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); }
+
+$("btnAnadir").onclick = () => {
+  if (!auth) { toast("Primero conecta Firebase (LEEME.txt)"); return; }
+  if (!editando) { $("loginBox").hidden = false; $("clave").focus(); toast("Escribe la clave para añadir música"); abrirAlEntrar = true; return; }
+  const b = $("buscador"); b.hidden = !b.hidden; if (!b.hidden) { mostrarClaves(); $("q").focus(); } };
+$("btnGuardarClaves").onclick = () => {
+  const g = $("kGh").value.trim();
+  if (!g) { toast("Pega el token de GitHub"); return; }
+  guardar(LS.gh, g); $("kGh").value = "";
+  mostrarClaves(); toast("Token guardado en este navegador");
+};
+
+async function anadirMp3(v, boton){
+  const dl = CONFIG.evogbKey, gh = guardado(LS.gh), G = CONFIG.github;
+  if (!gh) { $("claves").hidden = false; toast("Primero guarda el token de GitHub"); return; }
+  if (!G.usuario || !G.repo) { toast("Falta el usuario y el repo de GitHub en CONFIG"); return; }
+  const lista = listaActual;
+  boton.disabled = true;
+  try {
+    estado("1/3 Pidiendo el mp3…");
+    const r = await fetch(CONFIG.descargaEndpoint + "?key=" + encodeURIComponent(dl) + "&url=" + encodeURIComponent("https://www.youtube.com/watch?v=" + v.vid));
+    const j = await r.json();
+    const enlace = j && j.data && j.data.dl;
+    if (!j.status || !enlace) throw new Error("La API no devolvió enlace (" + (j.reason || j.message || j.msg || r.status) + ")");
+    estado("2/3 Descargando el audio…");
+    const f = await fetch(enlace);
+    if (!f.ok) throw new Error("No se pudo bajar el archivo (" + f.status + ")");
+    const contenido = aBase64(await f.arrayBuffer());
+    estado("3/3 Subiendo al repositorio…");
+    const ruta = "musica/" + v.vid + ".mp3";
+    const u = await fetch("https://api.github.com/repos/" + G.usuario + "/" + G.repo + "/contents/" + ruta, {
+      method: "PUT",
+      headers: { Authorization: "Bearer " + gh, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+      body: JSON.stringify({ message: "Agregar " + v.titulo, content: contenido, branch: G.rama || "main" })
+    });
+    if (!u.ok && u.status !== 422) throw new Error("GitHub respondió " + u.status + (u.status === 401 ? " (token inválido)" : ""));
+    await agregar({ tipo: "mp3", id: v.vid, titulo: v.titulo, artista: v.canal, thumb: v.thumb, url: ruta, disponible: Date.now() + 150000 }, lista);
+    boton.textContent = "Agregada";
+    estado("Listo. Saldrá como «Preparando…» unos minutos mientras GitHub la publica.");
+  } catch (e) {
+    console.error(e); boton.disabled = false;
+    estado("No se pudo agregar: " + (e.message === "Failed to fetch" ? "el navegador bloqueó la conexión (CORS) con la API." : e.message));
+  }
+}
+setInterval(() => { if (canciones.some(c => c.disponible && c.disponible > Date.now() - 25000)) pintarFilas(); }, 20000);
+
 $("btnBuscar").onclick = buscar;
 $("q").onkeydown = e => { if (e.key === "Enter") buscar(); };
 
