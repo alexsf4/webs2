@@ -74,3 +74,12 @@ NOVEDADES (version con bienvenida, contador y favoritas)
   los 15, 30 o 60 minutos).
 - Para subir: reemplaza index.html (y INSTRUCCIONES.txt) en GitHub. NO hace falta tocar
   listas.json ni la carpeta musica.
+
+
+LAS 3 PAGINAS
+=============
+1. Bienvenida (sobre "Abrir regalo").
+2. Tiempo juntos + tu mensaje, con el boton "Ver nuestra playlist".
+3. Playlist y reproductor, con el boton "Volver" arriba.
+El boton "atras" del celular tambien va de una pagina a otra.
+El texto del boton de la pagina 2 se cambia en CONFIG: botonLista.

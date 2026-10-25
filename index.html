@@ -221,10 +221,26 @@ body.sonando .eq i{animation-play-state:running}
   #petalos{display:none}
   .eq i{animation:none!important;transform:scaleY(.6)}
 }
+/* ===== Páginas ===== */
+body[data-pagina="tiempo"] .p-lista{display:none!important}
+body[data-pagina="playlist"] .p-tiempo{display:none!important}
+body[data-pagina="tiempo"] .bar{display:none}
+body[data-pagina="tiempo"]{padding-bottom:40px}
+.pagina{animation:entra .5s ease both}
+@keyframes entra{from{opacity:0;transform:translateY(10px)}to{opacity:1;transform:none}}
+.irlista{padding:22px 32px 0;max-width:704px}
+.irlista .btnbv{width:100%;max-width:420px}
+.cabeza{display:flex;align-items:center;gap:12px;padding:20px 32px 0}
+.cabeza #cabezaTitulo{font-weight:800;font-size:1.05rem;min-width:0;overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+@media (max-width:700px){
+  .irlista{padding:22px 20px 0}
+  .cabeza{padding:18px 20px 0}
+}
+@media (prefers-reduced-motion:reduce){.pagina{animation:none}}
 </style>
 <script>try{if(sessionStorage.getItem("regalo_abierto"))document.documentElement.classList.add("sin-bienvenida")}catch(e){}</script>
 </head>
-<body>
+<body data-pagina="tiempo">
 
 <div id="bienvenida" role="dialog" aria-modal="true" aria-labelledby="bvTitulo">
   <div id="petalos" aria-hidden="true"></div>
@@ -238,6 +254,7 @@ body.sonando .eq i{animation-play-state:running}
   <button class="btnbv" id="btnAbrir"></button>
 </div>
 
+<div class="p-tiempo pagina">
 <header class="hero">
   <img class="cover" id="cover" alt="Nuestra foto">
   <div>
@@ -260,6 +277,14 @@ body.sonando .eq i{animation-play-state:running}
   <div class="total" id="jTotal"></div>
   <div class="dia"><small id="mensajeEtiq"></small><span id="mensajeInicio"></span></div>
 </section>
+
+<div class="irlista"><button class="btnbv" id="btnLista"></button></div>
+</div>
+
+<!-- ===== Página 3: playlist ===== -->
+<div class="p-lista pagina">
+
+<div class="cabeza"><button class="chip" id="btnVolver" aria-label="Volver a la página anterior">← Volver</button><span id="cabezaTitulo"></span></div>
 
 <div class="top">
   <div class="tabs" id="tabs"></div>
@@ -307,6 +332,8 @@ body.sonando .eq i{animation-play-state:running}
   <h2 id="msgTitle"></h2>
   <p id="msgText"></p>
 </section>
+
+</div>
 
 <div class="bar">
   <div class="now">
@@ -357,6 +384,9 @@ const CONFIG = {
   bienvenidaTitulo: "Tengo algo para ti, Yaddi",
   bienvenidaTexto: "Canciones que me recuerdan a ti, guardadas en un solo lugar.",
   bienvenidaBoton: "Abrir regalo",
+
+  /* Botón de la página 2 que lleva a la playlist */
+  botonLista: "Ver nuestra playlist  →",
 
   /* Contador "Llevamos juntos": año-mes-día */
   juntosDesde: "2022-09-29",
@@ -976,10 +1006,25 @@ setInterval(() => {
     $("btnAbrir").disabled = true;
     bv.classList.add("abierto");
     try { sessionStorage.setItem("regalo_abierto", "1"); } catch (e) {}
+    history.replaceState(null, "", "#tiempo"); aplicarPagina();
     setTimeout(() => bv.classList.add("sale"), 1300);
     setTimeout(() => { bv.hidden = true; document.body.classList.remove("bloqueado"); }, 2200);
   };
 })();
+
+/* ---------- Páginas: 1 bienvenida, 2 tiempo + mensaje, 3 playlist ---------- */
+function aplicarPagina(){
+  const p = location.hash === "#playlist" ? "playlist" : "tiempo";
+  document.body.dataset.pagina = p;
+  window.scrollTo(0, 0);
+  if (p === "tiempo" && visorAbierto) cerrarVisor();
+}
+$("btnLista").textContent = CONFIG.botonLista;
+$("cabezaTitulo").textContent = CONFIG.titulo;
+$("btnLista").onclick = () => { location.hash = "playlist"; };
+$("btnVolver").onclick = () => { location.hash = "tiempo"; };
+window.addEventListener("hashchange", aplicarPagina);
+aplicarPagina();
 
 pintarTabs();
 cargarLista();
