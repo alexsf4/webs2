@@ -149,17 +149,12 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
 
 <div class="panel" id="loginBox" hidden>
   <div class="fila">
-    <input type="password" id="clave" placeholder="Escribe la clave" autocomplete="current-password">
+    <input type="password" id="clave" placeholder="Pega el token de GitHub" autocomplete="current-password">
     <button class="btn" id="btnEntrar">Entrar</button>
   </div>
 </div>
 
 <div class="panel edit-only" id="buscador" hidden>
-  <div class="claves" id="claves" hidden>
-    <p>Se pide una sola vez y queda guardado solo en este navegador.</p>
-    <input type="password" id="kGh" placeholder="Token de GitHub" autocomplete="off">
-    <button class="btn" id="btnGuardarClaves">Guardar token</button>
-  </div>
   <div class="fila">
     <input type="text" id="q" placeholder="Busca una canción por nombre" autocomplete="off">
     <button class="btn" id="btnBuscar">Buscar</button>
@@ -202,9 +197,6 @@ input[type=range]::-moz-range-thumb{width:12px;height:12px;border:0;border-radiu
 <div class="toast" id="toast"></div>
 <audio id="audio" preload="metadata"></audio>
 
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-app-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-auth-compat.js"></script>
-<script src="https://www.gstatic.com/firebasejs/10.12.2/firebase-firestore-compat.js"></script>
 <script src="https://www.youtube.com/iframe_api"></script>
 
 <script>
@@ -224,20 +216,8 @@ const CONFIG = {
     { id: "yaddi",     nombre: "Playlist de Yaddi" }
   ],
 
-  /* Pega aquí los datos de Firebase (mira LEEME.txt, paso 1) */
-  firebase: {
-    apiKey: "",
-    authDomain: "",
-    projectId: "",
-    appId: ""
-  },
-
-  /* El correo que creaste en Firebase > Authentication > Usuarios. La clave es la que escribirán ustedes al pulsar "Editar listas". */
-  usuarioCompartido: "regalo@ejemplo.com",
-
-  
-  /* Subida automática de los mp3 a tu repositorio de GitHub */
-  github: { usuario: "", repo: "", rama: "main" },
+  /* Tu repositorio de GitHub: aquí se guardan las listas (listas.json) y los mp3 (carpeta musica) */
+  github: { usuario: "alexsf4", repo: "webs2", rama: "main" },
   evogbKey: "evogb-kOXevp1J",
   buscaEndpoint: "https://api.evogb.org/search/yt",
   descargaEndpoint: "https://api.evogb.org/dl/ytmp3"
@@ -261,17 +241,45 @@ function toast(t){ const e=$("toast"); e.textContent=t; e.classList.add("show");
 function decodificar(s){ const t=document.createElement("textarea"); t.innerHTML=s; return t.value; }
 function setAviso(txt){ const a=$("aviso"); if(txt){ a.textContent=txt; a.hidden=false; } else { a.hidden=true; } }
 
-/* ---------- Firebase ---------- */
-let db = null, auth = null;
-const FIREBASE_OK = !!(CONFIG.firebase.apiKey && CONFIG.firebase.projectId && typeof firebase !== "undefined");
-if (FIREBASE_OK) {
-  firebase.initializeApp(CONFIG.firebase);
-  db = firebase.firestore();
-  auth = firebase.auth();
-} else {
-  setAviso("Falta conectar la base de datos. Abre LEEME.txt y sigue el paso 1 para pegar los datos de Firebase en index.html.");
+/* ---------- Almacenamiento en GitHub (listas.json) ---------- */
+const G = CONFIG.github;
+const API = "https://api.github.com/repos/" + G.usuario + "/" + G.repo + "/contents/";
+const TOKEN_KEY = "regalo_gh";
+const leerLS = k => { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } };
+const escribirLS = (k, v) => { try { v ? localStorage.setItem(k, v) : localStorage.removeItem(k); } catch (e) {} };
+const token = () => leerLS(TOKEN_KEY);
+const hdr = () => ({ Authorization: "Bearer " + token(), Accept: "application/vnd.github+json" });
+const utf8aB64 = t => btoa(unescape(encodeURIComponent(t)));
+const b64aUtf8 = b => decodeURIComponent(escape(atob(b.replace(/\s/g, ""))));
+const uid = () => Date.now().toString(36) + Math.random().toString(36).slice(2, 7);
+if (!G.usuario || !G.repo) setAviso("Falta poner tu usuario y el nombre del repositorio de GitHub en CONFIG (mira INSTRUCCIONES.txt).");
+
+let datos = {}, tEscritura = 0;
+async function leerPublico(){
+  const r = await fetch("listas.json?t=" + Date.now(), { cache: "no-store" });
+  if (r.status === 404) return {};
+  if (!r.ok) throw new Error("HTTP " + r.status);
+  return await r.json();
 }
-const coleccion = id => db.collection("listas").doc(id).collection("canciones");
+async function leerApi(){
+  const r = await fetch(API + "listas.json?ref=" + encodeURIComponent(G.rama || "main") + "&t=" + Date.now(), { headers: hdr(), cache: "no-store" });
+  if (r.status === 404) return { data: {}, sha: null };
+  if (!r.ok) throw new Error("GitHub respondió " + r.status + (r.status === 401 ? " (token inválido)" : ""));
+  const j = await r.json();
+  return { data: JSON.parse(b64aUtf8(j.content)), sha: j.sha };
+}
+async function modificarListas(fn, msg){
+  for (let i = 0; i < 3; i++) {
+    const { data, sha } = await leerApi();
+    fn(data);
+    const body = { message: msg, content: utf8aB64(JSON.stringify(data, null, 1)), branch: G.rama || "main" };
+    if (sha) body.sha = sha;
+    const r = await fetch(API + "listas.json", { method: "PUT", headers: Object.assign({ "Content-Type": "application/json" }, hdr()), body: JSON.stringify(body) });
+    if (r.ok) { datos = data; tEscritura = Date.now(); mostrarLista(); return; }
+    if (r.status !== 409 && r.status !== 422) throw new Error("GitHub respondió " + r.status + (r.status === 401 ? " (token inválido)" : r.status === 403 ? " (al token le falta el permiso Contents: Read and write)" : ""));
+  }
+  throw new Error("No se pudo guardar, intenta otra vez");
+}
 
 /* ---------- Estado ---------- */
 let listaActual = CONFIG.listas[0].id;
@@ -296,17 +304,17 @@ function pintarTabs(){
   });
 }
 
+function mostrarLista(){ canciones = datos[listaActual] || []; pintarFilas(); }
+async function refrescar(){
+  if (Date.now() - tEscritura < 180000) return; /* GitHub Pages tarda un poco en publicar los cambios */
+  try {
+    const d = await leerPublico();
+    if (JSON.stringify(d) !== JSON.stringify(datos)) { datos = d; mostrarLista(); }
+  } catch (e) { console.error(e); setAviso("No se pudo leer listas.json. Revisa que lo subiste al repositorio."); }
+}
 function cargarLista(){
-  if (unsub) { unsub(); unsub = null; }
-  canciones = []; pintarFilas();
-  if (!db) return;
-  unsub = coleccion(listaActual).orderBy("creado").onSnapshot(snap => {
-    canciones = snap.docs.map(d => Object.assign({ docId: d.id }, d.data()));
-    pintarFilas();
-  }, err => {
-    console.error(err);
-    setAviso("No se pudo leer la lista. Revisa que las reglas de Firestore estén publicadas (LEEME.txt, paso 1).");
-  });
+  mostrarLista();
+  if (!cargarLista.iniciado) { cargarLista.iniciado = true; refrescar(); setInterval(refrescar, 60000); }
 }
 
 function pintarFilas(){
@@ -335,40 +343,44 @@ function pintarFilas(){
   });
 }
 
-/* ---------- Editar: clave, agregar, quitar ---------- */
+/* ---------- Editar: token, agregar, quitar ---------- */
+function setEditando(v){
+  editando = v;
+  document.body.classList.toggle("edit", v);
+  $("btnEditar").textContent = v ? "Salir de edición" : "Editar listas";
+  if (!v) { $("resultados").hidden = true; $("buscador").hidden = true; }
+  pintarFilas();
+}
 $("btnEditar").onclick = () => {
-  if (!auth) { toast("Primero conecta Firebase (LEEME.txt)"); return; }
-  if (editando) { auth.signOut(); return; }
+  if (editando) { escribirLS(TOKEN_KEY, ""); setEditando(false); return; }
   const box = $("loginBox"); box.hidden = !box.hidden;
   if (!box.hidden) $("clave").focus();
 };
-function entrar(){
-  const clave = $("clave").value;
-  if (!clave) { toast("Escribe la clave"); return; }
-  auth.signInWithEmailAndPassword(CONFIG.usuarioCompartido, clave)
-    .then(() => { $("clave").value = ""; $("loginBox").hidden = true; if (abrirAlEntrar) { abrirAlEntrar = false; $("buscador").hidden = false; mostrarClaves(); $("q").focus(); } })
-    .catch(() => toast("Clave incorrecta"));
+async function entrar(){
+  const t = $("clave").value.trim();
+  if (!t) { toast("Pega el token de GitHub"); return; }
+  if (!G.usuario || !G.repo) { toast("Falta el usuario y el repo de GitHub en CONFIG"); return; }
+  try {
+    const r = await fetch("https://api.github.com/repos/" + G.usuario + "/" + G.repo, { headers: { Authorization: "Bearer " + t, Accept: "application/vnd.github+json" } });
+    if (!r.ok) throw new Error();
+    escribirLS(TOKEN_KEY, t); $("clave").value = ""; $("loginBox").hidden = true; setEditando(true);
+    if (abrirAlEntrar) { abrirAlEntrar = false; $("buscador").hidden = false; $("q").focus(); }
+  } catch (e) { toast("Token incorrecto o sin acceso al repositorio"); }
 }
 $("btnEntrar").onclick = entrar;
 $("clave").onkeydown = e => { if (e.key === "Enter") entrar(); };
-
-if (auth) auth.onAuthStateChanged(u => {
-  editando = !!u;
-  document.body.classList.toggle("edit", editando);
-  $("btnEditar").textContent = editando ? "Salir de edición" : "Editar listas";
-  if (!editando) { $("resultados").hidden = true; $("buscador").hidden = true; }
-  pintarFilas();
-});
+if (token()) setEditando(true);
 
 function agregar(item, listaId){
-  if (!editando) { toast("Primero escribe la clave en Editar listas"); return Promise.reject(); }
+  if (!editando) { toast("Primero entra en Editar listas"); return Promise.reject(new Error("sin permiso")); }
   const lid = listaId || listaActual;
-  return coleccion(lid).add(Object.assign({}, item, { creado: firebase.firestore.FieldValue.serverTimestamp() }));
+  return modificarListas(d => { (d[lid] = d[lid] || []).push(Object.assign({ docId: uid() }, item)); }, "Agregar " + item.titulo);
 }
 function quitar(c){
   if (!editando) return;
   if (!confirm("¿Quitar \"" + c.titulo + "\" de la lista?")) return;
-  coleccion(listaActual).doc(c.docId).delete().then(() => toast("Canción quitada")).catch(() => toast("No se pudo quitar"));
+  modificarListas(d => { d[listaActual] = (d[listaActual] || []).filter(x => x.docId !== c.docId); }, "Quitar " + c.titulo)
+    .then(() => toast("Canción quitada")).catch(e => toast("No se pudo quitar: " + e.message));
 }
 
 /* Para tus propios mp3 (archivos en la carpeta musica): agregarCancionPropia("alexander", {titulo:"...", artista:"...", url:"musica/archivo.mp3"}) */
@@ -413,33 +425,21 @@ async function buscar(){
 }
 
 /* ---------- Añadir música: descarga mp3 + subida a GitHub ---------- */
-const LS = { dl: "regalo_dl", gh: "regalo_gh" };
-const guardado = k => { try { return localStorage.getItem(k) || ""; } catch (e) { return ""; } };
-const guardar = (k, v) => { try { localStorage.setItem(k, v); } catch (e) {} };
-function mostrarClaves(){ $("claves").hidden = !!guardado(LS.gh); }
 function estado(t){ const e = $("estado"); e.textContent = t || ""; e.hidden = !t; }
 function aBase64(buf){ const u = new Uint8Array(buf); let s = ""; for (let i = 0; i < u.length; i += 0x8000) s += String.fromCharCode.apply(null, u.subarray(i, i + 0x8000)); return btoa(s); }
 
 $("btnAnadir").onclick = () => {
-  if (!auth) { toast("Primero conecta Firebase (LEEME.txt)"); return; }
-  if (!editando) { $("loginBox").hidden = false; $("clave").focus(); toast("Escribe la clave para añadir música"); abrirAlEntrar = true; return; }
-  const b = $("buscador"); b.hidden = !b.hidden; if (!b.hidden) { mostrarClaves(); $("q").focus(); } };
-$("btnGuardarClaves").onclick = () => {
-  const g = $("kGh").value.trim();
-  if (!g) { toast("Pega el token de GitHub"); return; }
-  guardar(LS.gh, g); $("kGh").value = "";
-  mostrarClaves(); toast("Token guardado en este navegador");
+  if (!editando) { $("loginBox").hidden = false; $("clave").focus(); toast("Pega el token de GitHub para añadir música"); abrirAlEntrar = true; return; }
+  const b = $("buscador"); b.hidden = !b.hidden; if (!b.hidden) $("q").focus();
 };
 
 async function anadirMp3(v, boton){
-  const dl = CONFIG.evogbKey, gh = guardado(LS.gh), G = CONFIG.github;
-  if (!gh) { $("claves").hidden = false; toast("Primero guarda el token de GitHub"); return; }
-  if (!G.usuario || !G.repo) { toast("Falta el usuario y el repo de GitHub en CONFIG"); return; }
+  if (!editando) { toast("Primero entra en Editar listas"); return; }
   const lista = listaActual;
   boton.disabled = true;
   try {
     estado("1/3 Pidiendo el mp3…");
-    const r = await fetch(CONFIG.descargaEndpoint + "?key=" + encodeURIComponent(dl) + "&url=" + encodeURIComponent("https://www.youtube.com/watch?v=" + v.vid));
+    const r = await fetch(CONFIG.descargaEndpoint + "?key=" + encodeURIComponent(CONFIG.evogbKey) + "&url=" + encodeURIComponent("https://www.youtube.com/watch?v=" + v.vid));
     const j = await r.json();
     const enlace = j && j.data && j.data.dl;
     if (!j.status || !enlace) throw new Error("La API no devolvió enlace (" + (j.reason || j.message || j.msg || r.status) + ")");
@@ -449,12 +449,12 @@ async function anadirMp3(v, boton){
     const contenido = aBase64(await f.arrayBuffer());
     estado("3/3 Subiendo al repositorio…");
     const ruta = "musica/" + v.vid + ".mp3";
-    const u = await fetch("https://api.github.com/repos/" + G.usuario + "/" + G.repo + "/contents/" + ruta, {
+    const u = await fetch(API + ruta, {
       method: "PUT",
-      headers: { Authorization: "Bearer " + gh, Accept: "application/vnd.github+json", "Content-Type": "application/json" },
+      headers: Object.assign({ "Content-Type": "application/json" }, hdr()),
       body: JSON.stringify({ message: "Agregar " + v.titulo, content: contenido, branch: G.rama || "main" })
     });
-    if (!u.ok && u.status !== 422) throw new Error("GitHub respondió " + u.status + (u.status === 401 ? " (token inválido)" : ""));
+    if (!u.ok && u.status !== 422) throw new Error("GitHub respondió " + u.status + (u.status === 401 ? " (token inválido)" : u.status === 403 ? " (al token le falta el permiso Contents: Read and write)" : ""));
     await agregar({ tipo: "mp3", id: v.vid, titulo: v.titulo, artista: v.canal, thumb: v.thumb, url: ruta, disponible: Date.now() + 150000 }, lista);
     boton.textContent = "Agregada";
     estado("Listo. Saldrá como «Preparando…» unos minutos mientras GitHub la publica.");

@@ -1,110 +1,60 @@
-INSTRUCCIONES (en orden, sin saltarte nada)
-===========================================
-
-Vas a hacer 4 partes. Al final subes el index.html a GitHub.
-Ve anotando en un Bloc de notas lo que te pido anotar.
+INSTRUCCIONES (version sin Firebase: todo se guarda en tu GitHub)
+=================================================================
+Ya NO necesitas Firebase. Puedes ignorar todo lo de Firebase.
 
 
-PARTE A - FIREBASE (la base de datos, gratis)
----------------------------------------------
-1. Entra a  https://console.firebase.google.com  con tu cuenta de Google.
-2. Pulsa "Crear un proyecto". Nombre: regalo-yaddi. Continuar.
-   Apaga Google Analytics. Pulsa "Crear proyecto". Espera y pulsa Continuar.
-
-3. Menu izquierdo: "Compilacion" > "Firestore Database" > "Crear base de datos".
-   Siguiente > elige "Modo de produccion" > "Habilitar".
-
-4. Arriba en Firestore pulsa la pestana "Reglas".
-   Borra TODO lo que hay, pega esto y pulsa "Publicar":
-
-rules_version = '2';
-service cloud.firestore {
-  match /databases/{database}/documents {
-    match /listas/{lista}/canciones/{cancion} {
-      allow read: if true;
-      allow write: if request.auth != null;
-    }
-  }
-}
-
-5. Menu izquierdo: "Compilacion" > "Authentication" > "Comenzar".
-   Elige "Correo electronico/contrasena", activalo y pulsa Guardar.
-
-6. En Authentication abre la pestana "Usuarios" > "Agregar usuario":
-   Correo:      regalo@yaddi.com        (inventado, no tiene que existir)
-   Contrasena:  la CLAVE que van a usar tu y Yaddi (minimo 6 caracteres)
-   >> ANOTA la clave.
-
-7. Arriba a la izquierda pulsa la rueda de engranaje > "Configuracion del proyecto".
-   Baja a "Tus apps" y pulsa el icono  </>  (web).
-   Ponle un nombre cualquiera y pulsa "Registrar app".
-   Te sale un bloque de codigo con estos datos. ANOTA los 4:
-      apiKey
-      authDomain
-      projectId
-      appId
-   (los textos que estan entre comillas)
-
-
-PARTE B - TOKEN DE GITHUB (para que la web suba las canciones a tu repo)
------------------------------------------------------------------------
+PASO 1 - TOKEN DE GITHUB
+------------------------
 1. Entra a github.com. Pulsa tu foto (arriba derecha) > Settings.
-2. Abajo del todo a la izquierda: "Developer settings".
+2. Abajo a la izquierda: "Developer settings".
 3. "Personal access tokens" > "Fine-grained tokens" > "Generate new token".
 4. Token name: regalo-yaddi
-   Expiration: elige el plazo mas largo que te deje.
-   Repository access: "Only select repositories" y elige TU repositorio de la web.
-   Permissions > Repository permissions > busca "Contents" y ponlo en "Read and write".
-5. Pulsa "Generate token". Te muestra un texto largo que empieza por github_pat_
-   COPIALO Y ANOTALO YA, porque despues no se vuelve a ver.
+   Expiration: el plazo mas largo que te deje.
+   Repository access: "Only select repositories" > elige TU repositorio de la web.
+   Permissions > Repository permissions > "Contents" > "Read and write".
+5. Pulsa "Generate token". Copia el texto que empieza por github_pat_
+   y ANOTALO (despues no se vuelve a ver).
 
 
-PARTE C - COMPLETAR EL index.html
----------------------------------
-Abre index.html con el Bloc de notas (clic derecho > Abrir con > Bloc de notas).
-Pulsa Ctrl+F y busca:  PERSONALIZA
-Veras un bloque asi. Completa SOLO estos 3 lugares (lo que esta entre comillas):
+PASO 2 - COMPLETAR index.html
+-----------------------------
+1. Abre index.html con el Bloc de notas.
+2. Ctrl+F y busca:  PERSONALIZA
+3. Busca esta linea y completa tu usuario y el nombre de tu repositorio:
 
-  firebase: {
-    apiKey: "PEGA AQUI",
-    authDomain: "PEGA AQUI",
-    projectId: "PEGA AQUI",
-    appId: "PEGA AQUI"
-  },
+   github: { usuario: "TU-USUARIO", repo: "NOMBRE-DEL-REPO", rama: "main" },
 
-  usuarioCompartido: "regalo@yaddi.com",     <- el mismo correo del paso A6
-
-  github: { usuario: "TU-USUARIO-DE-GITHUB", repo: "NOMBRE-DE-TU-REPO", rama: "main" },
-
-Guarda con Ctrl+G.
-Nada mas en el archivo hay que tocarlo (la clave de Evogb ya esta puesta).
+   (el usuario y el repo son los de la direccion github.com/USUARIO/REPO)
+4. Guarda con Ctrl+G. No toques nada mas.
 
 
-PARTE D - SUBIR A GITHUB
-------------------------
-1. Entra a tu repositorio en github.com.
-2. "Add file" > "Upload files". Arrastra el index.html. Pulsa "Commit changes".
-3. Espera 1 o 2 minutos, abre tu pagina y recarga con Ctrl+F5 (en celular: cierra y abre).
+PASO 3 - SUBIR A GITHUB
+-----------------------
+1. Entra a tu repositorio > "Add file" > "Upload files".
+2. Arrastra index.html Y listas.json (los dos). Pulsa "Commit changes".
+3. Espera 2 minutos y abre tu pagina con Ctrl+F5.
 
 
-COMO USARLA (primera vez)
--------------------------
+PASO 4 - USARLA (la primera vez en cada celular)
+------------------------------------------------
 1. Pulsa "Añadir música".
-2. Escribe la CLAVE del paso A6 y pulsa Entrar.
-3. Te pide el token de GitHub: pegas el github_pat_... y pulsas "Guardar token".
-   (Se hace una sola vez en cada celular. Yaddi lo hace una vez en el suyo.)
-4. Escribe el nombre de una cancion, pulsa Buscar, y pulsa Agregar.
-5. La cancion sale como "Preparando..." unos minutos y despues ya suena.
+2. Pega el token github_pat_... y pulsa Entrar. (Se hace una sola vez por celular.)
+3. Escribe el nombre de la cancion > Buscar > Agregar.
+4. Sale como "Preparando..." unos minutos y despues ya suena.
+5. Para quitar una cancion: Editar listas y pulsa la X de la fila.
+
+
+COSAS QUE DEBES SABER
+---------------------
+- Los cambios tardan 1 o 2 minutos en verse en otros celulares (GitHub Pages
+  tiene que publicarlos). En el celular donde agregas, se ve al instante.
+- El token es la "clave": quien lo tenga puede editar las listas. No lo publiques.
 
 
 SI ALGO FALLA
 -------------
-- Aviso rosado "Falta conectar la base de datos": falta la Parte C (datos de Firebase).
-- "Clave incorrecta": el correo de usuarioCompartido debe ser igual al del paso A6,
-  y la clave la que pusiste ahi.
-- "No se pudo leer la lista": falta publicar las reglas (paso A4).
+- "No se pudo leer listas.json": no subiste listas.json al repositorio.
+- "Token incorrecto o sin acceso": el token esta mal copiado, vencio, o no se le dio acceso a ese repo.
+- "GitHub respondio 403": al token le falta Contents: Read and write.
+- "GitHub respondio 404": el usuario o el repo de CONFIG estan mal escritos.
 - "el navegador bloqueo la conexion (CORS)": avisame, hay que usar un intermediario.
-- "GitHub respondio 401": el token esta mal copiado o vencio. Crea otro (Parte B).
-- "GitHub respondio 404": el usuario o el repo de CONFIG estan mal escritos,
-  o el token no tiene acceso a ese repo.
-- "GitHub respondio 403": al token le falta el permiso Contents: Read and write.
