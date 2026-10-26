@@ -361,20 +361,7 @@ body[data-pagina="baile"]:not(.tiene-cancion){padding-bottom:40px}
 .bs::before{content:"";position:absolute;left:0;top:0;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.8;box-shadow:40px 22px #fff,95px 60px #ffd6e6,150px 18px #fff,210px 48px #fff,262px 14px #ffd6e6,318px 66px #fff,372px 30px #fff,410px 84px #ffd6e6,22px 96px #fff,70px 130px #fff,340px 120px #ffd6e6,120px 98px #fff;animation:bsBrilla 3s ease-in-out infinite alternate}
 @keyframes bsBrilla{from{opacity:.35}to{opacity:.9}}
 .bs-piso{position:absolute;left:-10%;right:-10%;bottom:-48px;height:130px;border-radius:50%;background:radial-gradient(ellipse at 50% 30%,rgba(255,107,157,.3),rgba(255,107,157,0) 70%)}
-.bs-p{position:absolute;left:50%;bottom:36px;transform:translateX(calc(var(--x,0) * 1px));transition:transform .9s cubic-bezier(.45,0,.25,1)}
-.bs-p.a{width:121px;height:150px;margin-left:-60px;z-index:1}
-.bs-p.b{width:82px;height:185px;margin-left:-41px;z-index:2}
-.bs-c{position:absolute;inset:0;transform-origin:50% 100%;transform:rotate(calc(var(--lean,0) * 1deg));transition:transform .55s ease;cursor:pointer}
-.bs-c.hop{animation:bsHop .55s ease-out}
-@keyframes bsHop{0%,100%{translate:0 0}40%{translate:0 -28px}}
-.bs-img{display:block;width:100%;height:100%;object-fit:contain;transform-origin:50% 100%;pointer-events:none;-webkit-user-drag:none;filter:drop-shadow(0 6px 10px rgba(0,0,0,.45));animation:bsResp 3.2s ease-in-out infinite}
-.bs-p.b .bs-img{animation-delay:-1.4s}
-@keyframes bsResp{0%,100%{transform:scale(1,1)}50%{transform:scale(1.012,1.02)}}
-.bs.baila .a .bs-img{animation:bsBaila 1.2s ease-in-out infinite}
-.bs.baila .b .bs-img{animation:bsBaila 1.2s ease-in-out infinite -.6s}
-@keyframes bsBaila{0%,100%{transform:translateY(0) rotate(-6deg) scale(1,1)}25%{transform:translateY(-16px) rotate(0) scale(.97,1.05)}50%{transform:translateY(0) rotate(6deg) scale(1.05,.95)}75%{transform:translateY(-16px) rotate(0) scale(.97,1.05)}}
-.bs-som{position:absolute;left:8%;right:8%;bottom:-6px;height:12px;border-radius:50%;background:radial-gradient(ellipse,rgba(0,0,0,.5),rgba(0,0,0,0) 70%)}
-.bs-nom{position:absolute;top:100%;left:50%;transform:translateX(-50%);margin-top:9px;font-size:.72rem;color:var(--muted);white-space:nowrap}
+.bs canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:pointer}
 .bs-fx{position:absolute;inset:0;pointer-events:none;overflow:hidden;z-index:5}
 .bs-h{position:absolute;width:18px;height:18px;margin-left:-9px;animation:bsSube 1.8s ease-out forwards}
 .bs-h svg{width:100%;height:100%;fill:var(--rosa)}
@@ -385,7 +372,7 @@ body[data-pagina="baile"]:not(.tiene-cancion){padding-bottom:40px}
 @keyframes bsPop{0%{opacity:0;scale:.2}20%{opacity:1;scale:1.25}35%{scale:1}85%{opacity:1;translate:0 -18px}100%{opacity:0;translate:0 -50px}}
 .bs-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
 @media (max-width:640px){.bailar{padding:16px 20px 0}}
-@media (prefers-reduced-motion:reduce){.bs-img,.bs.baila .bs-img,.bs::before{animation:none!important}.bs-h,.bs-nt{animation-duration:.01s!important}}
+@media (prefers-reduced-motion:reduce){.bs::before{animation:none!important}.bs-h,.bs-nt{animation-duration:.01s!important}}
 </style>
 <script>try{if(sessionStorage.getItem("regalo_abierto"))document.documentElement.classList.add("sin-bienvenida")}catch(e){}</script>
 </head>
@@ -537,8 +524,7 @@ body[data-pagina="baile"]:not(.tiene-cancion){padding-bottom:40px}
 <section class="bailar">
   <div class="bs" id="bsCaja">
     <div class="bs-piso"></div>
-    <div class="bs-p a" id="bsA"><div class="bs-c"><img class="bs-img" id="bsImgA" alt="Ella"></div><div class="bs-som"></div><div class="bs-nom" id="bsNomA"></div></div>
-    <div class="bs-p b" id="bsB"><div class="bs-c"><img class="bs-img" id="bsImgB" alt="Él"></div><div class="bs-som"></div><div class="bs-nom" id="bsNomB"></div></div>
+    <canvas id="bsCv" role="img" aria-label="Los dos muñequitos bailando y abrazándose"></canvas>
     <div class="bs-fx" id="bsFx"></div>
   </div>
   <div class="bs-btns" id="bsBtns">
@@ -681,8 +667,7 @@ const CONFIG = {
   /* Nuestro baile (página 8): las dos fotos recortadas están en la carpeta baile. Donde pongas <3 sale un corazón */
   baileTitulo: "Nuestro baile",
   baileTexto: "Aunque sea en muñequitos, contigo todo es una fiesta. Toca a cada uno para que salte <3",
-  baileChica: "baile/chica.png",
-  baileChico: "baile/chico.png",
+  baileCarpeta: "baile",
 
   juegoPremioPuntos: 300,
   juegoPremioTexto: "Llegaste a 300 puntos. Tu premio: un abrazo larguísimo la próxima vez que nos veamos <3",
@@ -1840,45 +1825,135 @@ window.Memo = (function(){
   };
 })();
 
-/* ---------- Nuestro baile ---------- */
+/* ---------- Nuestro baile: dos muñequitos con brazos que se mueven ---------- */
 window.Baile = (function(){
-  const caja = $("bsCaja"), A = $("bsA"), B = $("bsB"), fx = $("bsFx"), chips = [...document.querySelectorAll("#bsBtns .chip")];
-  let tk = 0, activo = false, notas = 0, esc = "todo";
+  const RIG = {"chica":{"w":290,"h":359,"skin":[202,202,202],"manos":{"L":{"off":[78,188],"c":[89.83600493218249,208.23551171393342]},"R":{"off":[200,188],"c":[216.11095100864554,206.685878962536]}},"hombro":{"L":[120,170],"R":[178,170]},"rest":{"L":{"th":-38.269908356356325,"L":48.70134448326513},"R":{"th":46.091499949773144,"L":52.89894424312477}}},"chico":{"w":357,"h":572,"alto":162,"brazos":{"L":{"off":[0,159]},"R":{"off":[263,153]}},"hombro":{"L":[48,172],"R":[305,170]},"rest":{"L":{"th":-1.0201111946470232,"L":157.5618584094431},"R":{"th":2.0282550053808364,"L":159.2797856806337}},"sep":{"idle":196,"abre":140,"abrazo":70,"beso":76}}};
+  const caja = $("bsCaja"), cv = $("bsCv"), cx = cv.getContext("2d"), fx = $("bsFx"), chips = [...document.querySelectorAll("#bsBtns .chip")];
+  const off = document.createElement("canvas"), ox = off.getContext("2d");
+  const SH = 300, SUELO = SH - 36, CARPETA = CONFIG.baileCarpeta || "baile";
+  const img = {};
+  let listo = false, cargando = false, SW = 400, dpr = 1;
+  let tk = 0, activo = false, notas = 0, esc = "todo", raf = 0, ultimo = 0, t = 0;
   $("baileTitulo").textContent = CONFIG.baileTitulo;
   conCorazones($("baileTexto"), CONFIG.baileTexto);
-  $("bsImgA").src = CONFIG.baileChica; $("bsImgB").src = CONFIG.baileChico;
-  $("bsNomA").textContent = CONFIG.para; $("bsNomB").textContent = CONFIG.de;
-  const esperar = ms => new Promise(r => setTimeout(r, ms));
-  const alt = () => caja.clientHeight;
-  /* d = distancia entre los dos, lean = inclinación (grados) de cada uno hacia el otro */
-  function mover(d, lean){
-    A.style.setProperty("--x", -d / 2); B.style.setProperty("--x", d / 2);
-    A.querySelector(".bs-c").style.setProperty("--lean", lean); B.querySelector(".bs-c").style.setProperty("--lean", -lean);
+  const rad = d => d * Math.PI / 180, deg = r => r * 180 / Math.PI;
+
+  function cargar(){
+    if (cargando) return; cargando = true;
+    const nombres = { aC: "chica_cuerpo", aL: "chica_manoL", aR: "chica_manoR", bC: "chico_cuerpo", bL: "chico_brazoL", bR: "chico_brazoR" };
+    Promise.all(Object.keys(nombres).map(k => new Promise(ok => { const im = new Image(); im.onload = () => { img[k] = im; ok(); }; im.onerror = ok; im.src = CARPETA + "/" + nombres[k] + ".png"; }))).then(() => { listo = Object.keys(nombres).every(k => img[k]); });
   }
-  const baila = on => caja.classList.toggle("baila", on);
-  function saltar(el){ const c = el.querySelector(".bs-c"); c.classList.remove("hop"); void c.offsetWidth; c.classList.add("hop"); }
+
+  /* personajes: a = ella (izquierda), b = él (derecha) */
+  const mk = (rig, esc_, nombre) => ({ rig, s: esc_, nombre, x: 0, lean: 0, dance: 0, tap: -9, ph: 0, brazos: { L: { th: rig.rest.L.th, k: rig.rest.L.L }, R: { th: rig.rest.R.th, k: rig.rest.R.L } } });
+  const A = mk(RIG.chica, 150 / RIG.chica.h, CONFIG.para), B = mk(RIG.chico, RIG.chico.alto / RIG.chico.h, CONFIG.de), SEP = RIG.chico.sep;
+  let dist = 190, leanObj = 0, bailaObj = 0;
+  let modoA = { L: "rest", R: "rest" }, modoB = { L: "rest", R: "rest" };
+
+  function matriz(c){
+    const u = t - c.tap, tapY = u >= 0 && u < .55 ? 28 * Math.sin(Math.PI * u / .55) : 0;
+    const w = c.dance, f = (t * Math.PI * 2 / 1.2) + c.ph, a = Math.abs(Math.sin(f));
+    const hop = w * 16 * a + tapY + (c.hopObj || 0) * 0;
+    const sway = w * -6 * Math.cos(f), sy = 1 + w * (.05 * a - .03) + (1 - w) * .012 * Math.sin(t * 2 + c.ph), sx = 2 - sy > 0 ? 1 + (1 - sy) * .9 : 1;
+    return new DOMMatrix().translate(SW / 2 + c.x, SUELO).rotate(c.lean + sway).translate(0, -hop).scale(c.s * sx, c.s * sy).translate(-c.rig.w / 2, -c.rig.h);
+  }
+
+  /* Ángulo/estiramiento deseado de cada brazo según su modo */
+  function deseado(c, otro, mc, mo, lado, modo){
+    const rest = c.rig.rest[lado], sh = c.rig.hombro[lado], sg = lado === "L" ? -1 : 1, f = t * Math.PI * 2 / 1.2 + c.ph;
+    if (modo === "rest") return { th: rest.th, k: rest.L };
+    if (modo === "swing") return { th: sg * 112 + 46 * Math.sin(f), k: c === A ? 108 : rest.L * 1.05 };
+    if (modo === "abre") { const hacia = otro.x > c.x ? 1 : -1; return { th: hacia * 96, k: rest.L * 1.1 }; }
+    /* modo = [x, y] punto en el cuerpo del otro (coordenadas de su imagen) */
+    const p = mo.transformPoint(new DOMPoint(modo[0], modo[1])), q = mc.inverse().transformPoint(p);
+    const dx = q.x - sh[0], dy = q.y - sh[1], d = Math.hypot(dx, dy);
+    return { th: deg(Math.atan2(dx, dy)), k: c === A ? Math.max(40, Math.min(d, 140)) : Math.max(rest.L * .7, Math.min(d, rest.L * 1.4)) };
+  }
+  function suave(c, lado, des, dt){
+    const b = c.brazos[lado], q = Math.min(1, dt * 9);
+    let d = ((des.th - b.th + 540) % 360) - 180; b.th += d * q; b.k += (des.k - b.k) * q;
+  }
+
+  function dibujarCuerpo(ctx, c, im){ ctx.drawImage(im, 0, 0); }
+  function dibujarBrazosA(ctx){
+    const r = A.rig;
+    ["L", "R"].forEach(l => {
+      const b = A.brazos[l], sh = r.hombro[l], rest = r.rest[l], ex = sh[0] + Math.sin(rad(b.th)) * b.k, ey = sh[1] + Math.cos(rad(b.th)) * b.k;
+      ctx.strokeStyle = "rgb(" + r.skin.join(",") + ")"; ctx.lineCap = "round"; ctx.lineWidth = 15;
+      ctx.beginPath(); ctx.moveTo(sh[0], sh[1]); ctx.lineTo(ex, ey); ctx.stroke();
+      const m = r.manos[l]; ctx.save(); ctx.translate(ex, ey); ctx.rotate(rad(rest.th - b.th)); ctx.translate(-m.c[0], -m.c[1]); ctx.drawImage(img["a" + l], m.off[0], m.off[1]); ctx.restore();
+    });
+  }
+  function dibujarBrazosB(ctx){
+    const r = B.rig;
+    ["L", "R"].forEach(l => {
+      const b = B.brazos[l], sh = r.hombro[l], rest = r.rest[l], k = b.k / rest.L, o = r.brazos[l].off;
+      ctx.save(); ctx.translate(sh[0], sh[1]); ctx.rotate(-rad(b.th)); ctx.scale(1, k); ctx.rotate(rad(rest.th)); ctx.translate(-sh[0], -sh[1]);
+      ctx.drawImage(img["b" + l], o[0], o[1]); ctx.restore();
+    });
+  }
+
+  function marco(ts){
+    if (!activo) return; raf = requestAnimationFrame(marco);
+    const dt = Math.min(.05, ultimo ? (ts - ultimo) / 1000 : 0); ultimo = ts; t += dt;
+    if (!listo) return;
+    const q = Math.min(1, dt * 5);
+    A.x += (-dist / 2 - A.x) * q; B.x += (dist / 2 - B.x) * q;
+    A.lean += (leanObj - A.lean) * q; B.lean += (-leanObj - B.lean) * q;
+    A.dance += (bailaObj - A.dance) * q; B.dance += (bailaObj - B.dance) * q; B.ph = Math.PI / 2;
+    const mA = matriz(A), mB = matriz(B);
+    ["L", "R"].forEach(l => {
+      suave(A, l, deseado(A, B, mA, mB, l, modoA[l]), dt);
+      suave(B, l, deseado(B, A, mB, mA, l, modoB[l]), dt);
+    });
+    const base = new DOMMatrix().scale(dpr);
+    cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, cv.width, cv.height);
+    cx.setTransform(base.multiply(mA)); dibujarCuerpo(cx, A, img.aC);
+    cx.setTransform(base.multiply(mB)); dibujarCuerpo(cx, B, img.bC);
+    /* brazos de ella: se dibujan aparte para que el pelo los tape en el hombro */
+    ox.setTransform(1, 0, 0, 1, 0, 0); ox.clearRect(0, 0, off.width, off.height);
+    ox.setTransform(base.multiply(mA)); dibujarBrazosA(ox);
+    ox.globalCompositeOperation = "destination-out"; ox.drawImage(img.aC, 0, 0); ox.globalCompositeOperation = "source-over";
+    cx.setTransform(1, 0, 0, 1, 0, 0); cx.drawImage(off, 0, 0);
+    cx.setTransform(base.multiply(mB)); dibujarBrazosB(cx);
+    cx.setTransform(base); cx.textAlign = "center"; cx.font = "500 11.5px 'Helvetica Neue',Arial,sans-serif"; cx.fillStyle = "#d9b3c3";
+    cx.fillText(A.nombre, SW / 2 + A.x, SUELO + 22); cx.fillText(B.nombre, SW / 2 + B.x, SUELO + 22);
+  }
+  function medir(){
+    SW = caja.clientWidth || 400; dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = off.width = Math.round(SW * dpr); cv.height = off.height = Math.round(SH * dpr);
+  }
+  window.addEventListener("resize", () => { if (activo) medir(); });
+
+  /* ---- efectos (corazones y notas) ---- */
+  const esperar = ms => new Promise(r => setTimeout(r, ms));
   function flotar(clase, html, x, y, dx){
     const e = document.createElement("span"); e.className = clase; e.innerHTML = html;
     e.style.left = "calc(50% + " + x + "px)"; e.style.bottom = y + "px"; e.style.setProperty("--dx", (dx || 0) + "px");
     e.addEventListener("animationend", () => e.remove()); fx.appendChild(e);
   }
-  const corazon = (x, y, grande) => flotar("bs-h" + (grande ? " g" : ""), HEART_SVG, x, y, (Math.random() - .5) * 50);
+  const corazon = (x, y) => flotar("bs-h", HEART_SVG, x, y, (Math.random() - .5) * 50);
   const lluvia = (n, x, y) => { for (let i = 0; i < n; i++) setTimeout(() => corazon(x + (Math.random() - .5) * 70, y + Math.random() * 30), i * 130); };
+  const saltar = c => { c.tap = t; };
 
-  async function sBaile(mi, ms){ mover(190, 0); baila(true); await esperar(ms); return mi === tk; }
+  /* ---- escenas ---- */
+  const pose = (d, lean, baila, a, b) => { dist = d; leanObj = lean; bailaObj = baila; modoA = Object.assign({ L: "rest", R: "rest" }, a); modoB = Object.assign({ L: "rest", R: "rest" }, b); };
+  const CINTURA_B = [215, 335], CINTURA_A = [128, 205], CUELLO_B = [205, 200], HOMBRO_A = [128, 168];
+  async function sBaile(mi, ms){ pose(SEP.idle, 0, 1, { L: "swing", R: "swing" }, { L: "swing", R: "swing" }); await esperar(ms); return mi === tk; }
   async function sAbrazo(mi){
-    baila(false); mover(100, 0); await esperar(1000); if (mi !== tk) return false;
-    mover(72, 5); await esperar(700); if (mi !== tk) return false;
-    lluvia(5, 0, 150); await esperar(2200); if (mi !== tk) return false;
-    mover(190, 0); await esperar(1000); return mi === tk;
+    pose(SEP.abre, 0, 0, { R: "abre" }, { L: "abre" }); await esperar(1100); if (mi !== tk) return false;
+    pose(SEP.abrazo, 3, 0, { R: CINTURA_B }, { L: CINTURA_A }); await esperar(1000); if (mi !== tk) return false;
+    lluvia(5, 0, 150); await esperar(2300); if (mi !== tk) return false;
+    pose(SEP.abre, 0, 0, { R: "abre" }, { L: "abre" }); await esperar(800); if (mi !== tk) return false;
+    pose(SEP.idle, 0, 0, {}, {}); await esperar(900); return mi === tk;
   }
   async function sBeso(mi){
-    baila(false); mover(100, 0); await esperar(1000); if (mi !== tk) return false;
-    mover(80, 9); await esperar(800); if (mi !== tk) return false;
-    saltar(A); saltar(B); flotar("bs-h g", HEART_SVG, 0, 215, 0); lluvia(7, 0, 175);
-    await esperar(2200); if (mi !== tk) return false;
-    mover(100, 0); await esperar(900); if (mi !== tk) return false;
-    mover(190, 0); await esperar(1000); return mi === tk;
+    pose(SEP.abre, 0, 0, { R: "abre" }, { L: "abre" }); await esperar(1100); if (mi !== tk) return false;
+    pose(SEP.beso, 8, 0, { R: CUELLO_B }, { L: HOMBRO_A }); await esperar(1100); if (mi !== tk) return false;
+    saltar(A); saltar(B); flotar("bs-h g", HEART_SVG, 0, 205, 0); lluvia(7, 0, 170);
+    await esperar(2300); if (mi !== tk) return false;
+    pose(SEP.abre, 0, 0, { R: "abre" }, { L: "abre" }); await esperar(800); if (mi !== tk) return false;
+    pose(SEP.idle, 0, 0, {}, {}); await esperar(900); return mi === tk;
   }
   async function correr(nombre){
     const mi = ++tk; esc = nombre;
@@ -1891,21 +1966,22 @@ window.Baile = (function(){
         if (!await sAbrazo(mi)) return;
       }
     } else if (nombre === "baile") { await sBaile(mi, 0); }
-    else {
-      if (!(nombre === "beso" ? await sBeso(mi) : await sAbrazo(mi))) return;
-      await sBaile(mi, 0);
-    }
+    else { if (!(nombre === "beso" ? await sBeso(mi) : await sAbrazo(mi))) return; await sBaile(mi, 0); }
   }
   chips.forEach(c => c.onclick = () => correr(c.dataset.esc));
-  [A, B].forEach((p, i) => p.querySelector(".bs-c").onpointerdown = () => { saltar(p); corazon((i ? 1 : -1) * 6, 170); });
+  cv.addEventListener("pointerdown", e => {
+    const r = cv.getBoundingClientRect(), px = e.clientX - r.left - SW / 2;
+    const c = Math.abs(px - A.x) < Math.abs(px - B.x) ? A : B;
+    saltar(c); corazon(c.x, 175);
+  });
 
   return {
     entrar(){
-      if (activo) return; activo = true;
-      notas = setInterval(() => { if (!caja.classList.contains("baila")) return; const l = Math.random() < .5; flotar("bs-nt", Math.random() < .5 ? "♪" : "♫", (l ? -1 : 1) * (60 + Math.random() * 60), 170 + Math.random() * 40, (l ? -1 : 1) * 25); }, 800);
-      correr(esc);
+      if (activo) return; activo = true; cargar(); medir(); ultimo = 0;
+      notas = setInterval(() => { if (bailaObj < .5) return; const l = Math.random() < .5; flotar("bs-nt", Math.random() < .5 ? "♪" : "♫", (l ? -1 : 1) * (70 + Math.random() * 60), 190 + Math.random() * 40, (l ? -1 : 1) * 25); }, 800);
+      raf = requestAnimationFrame(marco); correr(esc);
     },
-    salir(){ activo = false; tk++; clearInterval(notas); baila(false); fx.innerHTML = ""; }
+    salir(){ activo = false; tk++; clearInterval(notas); cancelAnimationFrame(raf); fx.innerHTML = ""; }
   };
 })();
 
