@@ -373,6 +373,22 @@ body[data-pagina="baile"]:not(.tiene-cancion){padding-bottom:40px}
 .bs-btns{display:flex;flex-wrap:wrap;gap:8px;justify-content:center;margin-top:14px}
 @media (max-width:640px){.bailar{padding:16px 20px 0}}
 @media (prefers-reduced-motion:reduce){.bs::before{animation:none!important}.bs-h,.bs-nt{animation-duration:.01s!important}}
+
+/* ===== Solo PC (>=1000px): dos columnas. En celular/tablet no cambia nada ===== */
+@media (min-width:1000px){
+  .hero{padding-left:max(32px,calc((100% - 1240px)/2 + 32px));padding-right:32px}
+  .inicio{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;max-width:1240px;margin:0 auto;align-items:start}
+  .inicio .juntos,.inicio .menu,.inicio .cielo{max-width:none}
+  .inicio .juntos{grid-column:1;grid-row:1;display:flex;flex-direction:column;padding-top:22px}
+  .inicio .juntos .dia{order:-1;margin-top:0}
+  .inicio .juntos .et{margin-top:16px}
+  .inicio .cielo{grid-column:1;grid-row:2}
+  .inicio .cielo-caja{max-width:none;aspect-ratio:16/9}
+  .inicio .menu{grid-column:2;grid-row:1 / span 2;padding-top:22px}
+  .mt-lista{padding:22px}
+  .mt-lista .mx b{font-size:1.15rem}
+  .mg{grid-template-columns:repeat(2,1fr)}
+}
 </style>
 <script>try{if(sessionStorage.getItem("regalo_abierto"))document.documentElement.classList.add("sin-bienvenida")}catch(e){}</script>
 </head>
@@ -400,6 +416,7 @@ body[data-pagina="baile"]:not(.tiene-cancion){padding-bottom:40px}
   </div>
 </header>
 
+<div class="inicio">
 <section class="juntos">
   <div class="et">Llevamos juntos</div>
   <div class="cont">
@@ -433,6 +450,7 @@ body[data-pagina="baile"]:not(.tiene-cancion){padding-bottom:40px}
   <p class="texto" id="cieloTexto"></p>
   <button class="chip" id="btnCielo">Guardar como fondo de pantalla</button>
 </section>
+</div>
 
 </div>
 
