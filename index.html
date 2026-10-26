@@ -376,8 +376,8 @@ body[data-pagina="baile"]:not(.tiene-cancion){padding-bottom:40px}
 
 /* ===== Solo PC (>=1000px): dos columnas. En celular/tablet no cambia nada ===== */
 @media (min-width:1000px){
-  .hero{padding-left:max(32px,calc((100% - 1240px)/2 + 32px));padding-right:32px}
-  .inicio{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;max-width:1240px;margin:0 auto;align-items:start}
+  .hero{padding-left:max(32px,calc((100% - 1400px)/2 + 32px));padding-right:32px}
+  .inicio{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:24px;max-width:1400px;margin:0 auto;align-items:start}
   .inicio .juntos,.inicio .menu,.inicio .cielo{max-width:none}
   .inicio .juntos{grid-column:1;grid-row:1;display:flex;flex-direction:column;padding-top:22px}
   .inicio .juntos .dia{order:-1;margin-top:0}
@@ -389,6 +389,59 @@ body[data-pagina="baile"]:not(.tiene-cancion){padding-bottom:40px}
   .mt-lista .mx b{font-size:1.15rem}
   .mg{grid-template-columns:repeat(2,1fr)}
 }
+
+/* ===== Solo PC (>=1000px): todas las páginas ocupan la pantalla ===== */
+@media (min-width:1000px){
+  .cabeza{max-width:1400px;margin:0 auto;padding-left:32px;padding-right:32px}
+  .cabeza .ct,.cabeza #cabezaTitulo{font-size:1.25rem}
+
+  /* --- Playlist: foto grande a la izquierda (fija al bajar), lista a la derecha --- */
+  .p-lista{display:grid;grid-template-columns:minmax(340px,440px) minmax(0,1fr);column-gap:24px;max-width:1400px;margin:0 auto;
+    grid-template-areas:"cab cab" "pl top" "pl aviso" "pl login" "pl busca" "pl herr" "pl list" "pl msg";grid-template-rows:auto auto auto auto auto auto 1fr auto}
+  .p-lista .cabeza{grid-area:cab;max-width:none;margin:0;width:100%}
+  .p-lista .top{grid-area:top;padding-left:16px;padding-right:32px}
+  .p-lista .aviso{grid-area:aviso;margin-left:16px;margin-right:32px;max-width:none}
+  .p-lista #loginBox{grid-area:login;margin-left:16px;margin-right:32px;max-width:none}
+  .p-lista #buscador{grid-area:busca;margin-left:16px;margin-right:32px;max-width:none}
+  .p-lista .player{grid-area:pl;align-self:start;position:sticky;top:16px;display:block;padding:20px 0 6px 32px}
+  .p-lista #ytwrap,.p-lista #mp3box,.p-lista #fotobox{max-width:none;width:100%;height:auto}
+  .p-lista #fotobox,.p-lista #mp3box{aspect-ratio:1}
+  .p-lista #ytwrap{aspect-ratio:16/9}
+  .p-lista .herr{grid-area:herr;max-width:none;padding-left:16px;padding-right:32px}
+  .p-lista .list{grid-area:list;padding:10px 16px 0}
+  .p-lista .row .info img{width:52px;height:52px}
+  .p-lista .msg{grid-area:msg;margin:32px 32px 24px 16px;max-width:none}
+
+  /* --- Dinosaurio: pista ancha y alta --- */
+  .juego{max-width:1400px;margin:0 auto;padding-left:32px;padding-right:32px}
+  .jcaja{height:clamp(300px,52vh,500px)}
+  .jinfo{font-size:1rem}
+  #jPuntos{font-size:1.5rem}
+
+  /* --- Rompecabezas / Pupiletras / Memorama: tablero grande + panel a la derecha --- */
+  .puzzle,.pupi,.memo{max-width:1400px;margin:0 auto;padding-left:32px;padding-right:32px;display:grid;grid-template-columns:minmax(0,1fr) minmax(300px,400px);column-gap:48px;align-items:start}
+  .puzzle>*:not(.pz-caja),.pupi>*:not(.sp-grid),.memo>*:not(.memo-grid){grid-column:2}
+  .pz-caja{grid-column:1;grid-row:1 / span 6;max-width:min(100%,calc(100vh - 150px));width:100%;justify-self:center}
+  .sp-grid{grid-column:1;grid-row:1 / span 6;max-width:min(100%,calc(100vh - 150px));justify-self:center}
+  .memo-grid{grid-column:1;grid-row:1 / span 6;grid-template-columns:repeat(5,1fr);gap:10px;max-width:min(100%,calc((100vh - 150px)*1.22));justify-self:center}
+  .pz-fotos{flex-wrap:wrap}
+  .pz-fotos button{width:64px;height:64px}
+  .pz-info{margin-left:0;width:100%}
+  .sp-pal{justify-content:flex-start}
+  .sp-pal span{font-size:.95rem}
+  .sp-c{font-size:clamp(16px,2.1vw,26px)}
+  .pz-ayuda{text-align:left}
+  .puzzle .dia,.pupi .dia,.memo .dia{margin-top:14px}
+
+  /* --- Nuestro baile: escenario grande --- */
+  .bailar{max-width:1400px;margin:0 auto;padding-left:32px;padding-right:32px}
+  .bs{max-width:none;height:clamp(380px,60vh,620px)}
+  .bs::after{content:"";position:absolute;left:0;top:0;width:2px;height:2px;border-radius:50%;background:#fff;opacity:.7;
+    box-shadow:60px 40px #fff,130px 110px #ffd6e6,210px 30px #fff,300px 90px #fff,380px 50px #ffd6e6,470px 130px #fff,560px 24px #fff,640px 100px #ffd6e6,720px 56px #fff,810px 140px #fff,900px 36px #ffd6e6,980px 96px #fff,1060px 60px #fff,1130px 120px #ffd6e6,90px 190px #fff,260px 210px #ffd6e6,430px 180px #fff,600px 220px #fff,770px 190px #ffd6e6,940px 230px #fff,1100px 200px #fff,40px 280px #fff,330px 300px #ffd6e6,690px 290px #fff,1000px 310px #fff;animation:bsBrilla 4s ease-in-out infinite alternate-reverse}
+  .bs-btns .chip{padding:9px 20px;font-size:.95rem}
+  #baileTexto{font-size:.95rem}
+}
+@media (min-width:1000px) and (prefers-reduced-motion:reduce){.bs::after{animation:none!important}}
 </style>
 <script>try{if(sessionStorage.getItem("regalo_abierto"))document.documentElement.classList.add("sin-bienvenida")}catch(e){}</script>
 </head>
@@ -1850,7 +1903,7 @@ window.Baile = (function(){
   const off = document.createElement("canvas"), ox = off.getContext("2d");
   const SH = 300, SUELO = SH - 36, CARPETA = CONFIG.baileCarpeta || "baile";
   const img = {};
-  let listo = false, cargando = false, SW = 400, dpr = 1;
+  let listo = false, cargando = false, SW = 400, dpr = 1, K = 1;
   let tk = 0, activo = false, notas = 0, esc = "todo", raf = 0, ultimo = 0, t = 0;
   $("baileTitulo").textContent = CONFIG.baileTitulo;
   conCorazones($("baileTexto"), CONFIG.baileTexto);
@@ -1924,7 +1977,7 @@ window.Baile = (function(){
       suave(A, l, deseado(A, B, mA, mB, l, modoA[l]), dt);
       suave(B, l, deseado(B, A, mB, mA, l, modoB[l]), dt);
     });
-    const base = new DOMMatrix().scale(dpr);
+    const base = new DOMMatrix().scale(dpr * K);
     cx.setTransform(1, 0, 0, 1, 0, 0); cx.clearRect(0, 0, cv.width, cv.height);
     cx.setTransform(base.multiply(mA)); dibujarCuerpo(cx, A, img.aC);
     cx.setTransform(base.multiply(mB)); dibujarCuerpo(cx, B, img.bC);
@@ -1938,8 +1991,10 @@ window.Baile = (function(){
     cx.fillText(A.nombre, SW / 2 + A.x, SUELO + 22); cx.fillText(B.nombre, SW / 2 + B.x, SUELO + 22);
   }
   function medir(){
-    SW = caja.clientWidth || 400; dpr = Math.min(2, window.devicePixelRatio || 1);
-    cv.width = off.width = Math.round(SW * dpr); cv.height = off.height = Math.round(SH * dpr);
+    const pc = window.matchMedia("(min-width:1000px)").matches;
+    K = pc && caja.clientHeight ? caja.clientHeight / SH : 1;
+    SW = (caja.clientWidth || 400) / K; dpr = Math.min(2, window.devicePixelRatio || 1);
+    cv.width = off.width = Math.round(SW * K * dpr); cv.height = off.height = Math.round(SH * K * dpr);
   }
   window.addEventListener("resize", () => { if (activo) medir(); });
 
@@ -1947,7 +2002,7 @@ window.Baile = (function(){
   const esperar = ms => new Promise(r => setTimeout(r, ms));
   function flotar(clase, html, x, y, dx){
     const e = document.createElement("span"); e.className = clase; e.innerHTML = html;
-    e.style.left = "calc(50% + " + x + "px)"; e.style.bottom = y + "px"; e.style.setProperty("--dx", (dx || 0) + "px");
+    e.style.left = "calc(50% + " + (x * K) + "px)"; e.style.bottom = (y * K) + "px"; e.style.setProperty("--dx", ((dx || 0) * K) + "px");
     e.addEventListener("animationend", () => e.remove()); fx.appendChild(e);
   }
   const corazon = (x, y) => flotar("bs-h", HEART_SVG, x, y, (Math.random() - .5) * 50);
@@ -1988,7 +2043,7 @@ window.Baile = (function(){
   }
   chips.forEach(c => c.onclick = () => correr(c.dataset.esc));
   cv.addEventListener("pointerdown", e => {
-    const r = cv.getBoundingClientRect(), px = e.clientX - r.left - SW / 2;
+    const r = cv.getBoundingClientRect(), px = (e.clientX - r.left) / K - SW / 2;
     const c = Math.abs(px - A.x) < Math.abs(px - B.x) ? A : B;
     saltar(c); corazon(c.x, 175);
   });
